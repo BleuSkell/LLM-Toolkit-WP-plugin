@@ -113,7 +113,14 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // bot selection
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompt' ); // custom prompt
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompts', [
+        'sanitize_callback' => function($input) {
+            if ( is_array( $input ) ) {
+                return array_map( 'sanitize_text_field', $input );
+            }
+            return [];
+        }
+    ]); // custom prompt per sitemap
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
@@ -132,7 +139,7 @@ function llm_toolkit_page() {
     $enabled            = get_option( 'llm_toolkit_enabled', '1' );
     $cron_enabled       = get_option( 'llm_toolkit_cron_enabled', '0' );
     $allowed_bots       = get_option( 'llm_toolkit_allowed_bots', [] );
-    $prompt             = get_option( 'llm_toolkit_prompt' );
+    $prompts            = get_option( 'llm_toolkit_prompts', [] );
     $sitemaps           = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $bot_detection      = get_option( 'llm_toolkit_bot_detection', 'plugin' );
 
@@ -189,11 +196,19 @@ function llm_toolkit_page() {
                         <p class="description">This tells the cron which sitemaps to generate llm html for.</p>
                     </div>
 
-                    <div class="llm-field">
-                        <label class="llm-label">Prompt</label>
-                        <textarea name="llm_toolkit_prompt" rows="8" placeholder="Enter instructions for the LLM generator"><?php echo esc_textarea( $prompt ); ?></textarea>
-                        <p class="description">This prompt controls how the LLM generates optimized HTML.</p>
-                    </div>
+                    <?php if ( ! empty( $selected_sitemaps ) ) : ?>
+                        <?php foreach ( $selected_sitemaps as $sitemap ) : ?>
+                            <?php
+                                $sitemap_key = md5( $sitemap );
+                                $prompt_value = isset( $prompts[ $sitemap_key ] ) ? $prompts[ $sitemap_key ] : '';
+                            ?>
+                            <div class="llm-field">
+                                <label class="llm-label">Prompt for <?php echo esc_html( basename( $sitemap ) ); ?></label>
+                                <textarea name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]" rows="8" placeholder="Enter instructions for the LLM generator"><?php echo esc_textarea( $prompt_value ); ?></textarea>
+                                <p class="description">This prompt controls how the LLM generates optimized HTML for <?php echo esc_html( basename( $sitemap ) ); ?>.</p>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
 
                 <!-- right settings card -->
