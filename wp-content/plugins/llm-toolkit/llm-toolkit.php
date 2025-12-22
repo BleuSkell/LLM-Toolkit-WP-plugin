@@ -33,6 +33,11 @@ function llm_toolkit_styling_callback( $hook ) {
 }
 add_action('admin_enqueue_scripts', 'llm_toolkit_styling_callback');
 
+function llm_toolkit_frontend_styles() {
+    wp_enqueue_style( 'llm-toolkit-generate-single-html', plugin_dir_url( __FILE__ ) . 'assets/css/single-llm-html-loader.css' );
+}
+add_action( 'wp_enqueue_scripts', 'llm_toolkit_frontend_styles' );
+
 // load scripts
 function llm_toolkit_scripts_callback( $hook ) {
     if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_script( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
@@ -113,14 +118,7 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // bot selection
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompts', [
-        'sanitize_callback' => function($input) {
-            if ( is_array( $input ) ) {
-                return array_map( 'sanitize_text_field', $input );
-            }
-            return [];
-        }
-    ]); // custom prompt per sitemap
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompt' ); // custom prompt per sitemap
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
@@ -139,7 +137,7 @@ function llm_toolkit_page() {
     $enabled            = get_option( 'llm_toolkit_enabled', '1' );
     $cron_enabled       = get_option( 'llm_toolkit_cron_enabled', '0' );
     $allowed_bots       = get_option( 'llm_toolkit_allowed_bots', [] );
-    $prompts            = get_option( 'llm_toolkit_prompts', [] );
+    $prompt            = get_option( 'llm_toolkit_prompt' );
     $sitemaps           = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $bot_detection      = get_option( 'llm_toolkit_bot_detection', 'plugin' );
 
@@ -196,19 +194,11 @@ function llm_toolkit_page() {
                         <p class="description">This tells the cron which sitemaps to generate llm html for.</p>
                     </div>
 
-                    <?php if ( ! empty( $selected_sitemaps ) ) : ?>
-                        <?php foreach ( $selected_sitemaps as $sitemap ) : ?>
-                            <?php
-                                $sitemap_key = md5( $sitemap );
-                                $prompt_value = isset( $prompts[ $sitemap_key ] ) ? $prompts[ $sitemap_key ] : '';
-                            ?>
-                            <div class="llm-field">
-                                <label class="llm-label">Prompt for <?php echo esc_html( basename( $sitemap ) ); ?></label>
-                                <textarea name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]" rows="8" placeholder="Enter instructions for the LLM generator"><?php echo esc_textarea( $prompt_value ); ?></textarea>
-                                <p class="description">This prompt controls how the LLM generates optimized HTML for <?php echo esc_html( basename( $sitemap ) ); ?>.</p>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                    <div class="llm-field">
+                        <label class="llm-label">Prompt</label>
+                        <textarea name="llm_toolkit_prompt" rows="8" placeholder="Enter instructions for the LLM generator"><?php echo esc_textarea( $prompt ); ?></textarea>
+                        <p class="description">This prompt controls how the LLM generates optimized HTML.</p>
+                    </div>
                 </div>
 
                 <!-- right settings card -->
@@ -382,51 +372,3 @@ require_once __DIR__ . '/includes/html-generation.php';
  *   cron job
  */
 require_once __DIR__ . '/includes/cron.php';
-
-add_action('init', function () {
-    if (isset($_GET['llm-openai-raw-test'])) {
-
-        $api_key   = OPENAI_API_KEY;
-        $api_model = OPENAI_MODEL;
-        $max_tokens = OPENAI_MAX_TOKENS;
-
-        $body = [
-            'model'    => $api_model,
-            'messages' => [
-                ['role' => 'user', 'content' => 'Geef één korte zin terug.']
-            ],
-            'max_completion_tokens' => $max_tokens,
-        ];
-
-        $response = wp_remote_post(
-            'https://api.openai.com/v1/chat/completions',
-            [
-                'headers' => [
-                    'Content-Type'  => 'application/json',
-                    'Authorization' => 'Bearer ' . $api_key,
-                ],
-                'body'    => wp_json_encode($body),
-                'timeout' => 30,
-            ]
-        );
-
-        header('Content-type: text/plain; charset=utf-8');
-
-        if (is_wp_error($response)) {
-            echo "WP Error:\n";
-            print_r($response);
-            exit;
-        }
-
-        $code = wp_remote_retrieve_response_code($response);
-        $body = wp_remote_retrieve_body($response);
-
-        echo "HTTP code: $code\n\n";
-        echo "Raw body:\n$body\n\n";
-
-        $data = json_decode($body, true);
-        echo "\n\nParsed:\n";
-        print_r($data);
-        exit;
-    }
-});

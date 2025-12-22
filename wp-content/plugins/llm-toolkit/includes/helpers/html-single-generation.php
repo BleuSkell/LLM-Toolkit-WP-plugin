@@ -12,6 +12,23 @@ function llm_toolkit_generate_single_js() {
     ?>
 
     <script>
+        // add loading screen overlay
+        const screenOverlay = document.createElement('div');
+        screenOverlay.className = 'llm-loader-overlay';
+
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+
+        screenOverlay.appendChild(loader);
+        document.body.appendChild(screenOverlay)
+
+        function showLoader() {
+            screenOverlay.style.display = 'flex';
+        }
+
+        function hideLoader() {
+            screenOverlay.style.display = 'none';
+        }
 
         // JS function called by admin toolbar button
         function ajaxGenerateLLM ( currentPageUrl ) {
@@ -22,6 +39,8 @@ function llm_toolkit_generate_single_js() {
 
             const ajax_handler_url = '<?php echo esc_url( $ajax_handler_url ); ?>';
 
+            showLoader();
+
             jQuery.post(
                 ajax_handler_url,
                 {
@@ -29,6 +48,8 @@ function llm_toolkit_generate_single_js() {
                     url: currentPageUrl,
                 },
                 function( response ) {
+                    hideLoader();
+
                     if ( response.success ) {
                         window.alert( 'Successfully generated LLM HTML for this page' );
                     } else {
