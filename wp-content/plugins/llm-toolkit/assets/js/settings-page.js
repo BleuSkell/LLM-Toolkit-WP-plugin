@@ -47,36 +47,27 @@ document.addEventListener("DOMContentLoaded", function () {
         row.remove();
         updateHidden();
     });
-
-    // JS function called by admin toolbar button
-    function ajaxGenerateLLM (currentPageUrl) {
-
-        if (!confirm("Generate LLMS HTML of this page. IMPORTANT!: Existing file will be overwritten!")) return;
-
-        const ajax_handler_url = '<?php echo esc_url($ajax_handler_url); ?>';
-
-        showLLMOverlay();
-
-        jQuery.post(
-            ajax_handler_url,
-            {
-                action: 'llm_toolkit_generate_single_html', // call function to generate html
-                url: currentPageUrl,
-            },
-            function(response) {
-                hideLLMOverlay();
-
-                if (response.success) {
-                    window.alert("Successfully generated LLM HTML for this page");
-                } else {
-                    window.alert("Failed to generate LLM HTML for this page, check logs");
-                }
-            }
-        ).fail(function() {
-            hideLLMOverlay();
-
-            window.alert("An unexpected error occurred while generating the LLM HTML");
-        });
-    }
-
 });
+
+// JS function called by admin toolbar button
+function ajaxGenerateLLM (currentPageUrl) {
+
+    if (!confirm("Generate LLMS HTML of this page. IMPORTANT!: Existing file will be overwritten!")) return;
+
+    jQuery.post(
+        llmToolkit.ajaxHandlerUrl,
+        {
+            action: 'llm_toolkit_generate_single_html', // call function to generate html
+            url: currentPageUrl,
+        },
+        function(response) {
+            if (response.success) {
+                window.alert("Successfully generated LLM HTML for this page");
+            } else {
+                window.alert("Failed to generate LLM HTML for this page, check logs");
+            }
+        }
+    ).fail(function() {
+        window.alert("An unexpected error occurred while generating the LLM HTML");
+    });
+}

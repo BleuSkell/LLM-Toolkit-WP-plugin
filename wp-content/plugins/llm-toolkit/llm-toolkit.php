@@ -38,6 +38,10 @@ function llm_toolkit_scripts_callback( $hook ) {
     if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_script( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
     if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_script( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-logs-page.js' );
+
+    wp_localize_script( 'llm-toolkit-page', 'llmToolkit', [
+        'ajaxHandlerUrl' => admin_url('admin-ajax.php')
+    ]);
 }
 add_action( 'admin_enqueue_scripts', 'llm_toolkit_scripts_callback' );
 
