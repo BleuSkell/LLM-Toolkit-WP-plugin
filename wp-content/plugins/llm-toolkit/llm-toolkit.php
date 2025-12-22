@@ -2,7 +2,7 @@
 /**
  * Plugin Name: llm-toolkit
  * Description: Show/generate optimalized html for LLMS by checking the user-agent of the site visitor.
- * Version: 1.2
+ * Version: 1.3
  * Author: Kyano
  */
 
@@ -56,7 +56,7 @@ function manual_llm_html_generation( $wp_admin_bar ) {
         'meta'  => [
             'class'     => 'llm-html-generation-button',
             'title'     => 'Generate LLM HTML for this page',
-            'onclick'   => 'ajaxGenerateLLM("' . $current_url . '")', // call ajax handler in settings-page.js
+            'onclick'   => 'ajaxGenerateLLM(' . wp_json_encode( $current_url ) . ')', // call ajax handler
         ]
     ];
 
@@ -367,3 +367,51 @@ require_once __DIR__ . '/includes/html-generation.php';
  *   cron job
  */
 require_once __DIR__ . '/includes/cron.php';
+
+add_action('init', function () {
+    if (isset($_GET['llm-openai-raw-test'])) {
+
+        $api_key   = OPENAI_API_KEY;
+        $api_model = OPENAI_MODEL;
+        $max_tokens = OPENAI_MAX_TOKENS;
+
+        $body = [
+            'model'    => $api_model,
+            'messages' => [
+                ['role' => 'user', 'content' => 'Geef één korte zin terug.']
+            ],
+            'max_completion_tokens' => $max_tokens,
+        ];
+
+        $response = wp_remote_post(
+            'https://api.openai.com/v1/chat/completions',
+            [
+                'headers' => [
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $api_key,
+                ],
+                'body'    => wp_json_encode($body),
+                'timeout' => 30,
+            ]
+        );
+
+        header('Content-type: text/plain; charset=utf-8');
+
+        if (is_wp_error($response)) {
+            echo "WP Error:\n";
+            print_r($response);
+            exit;
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
+        echo "HTTP code: $code\n\n";
+        echo "Raw body:\n$body\n\n";
+
+        $data = json_decode($body, true);
+        echo "\n\nParsed:\n";
+        print_r($data);
+        exit;
+    }
+});

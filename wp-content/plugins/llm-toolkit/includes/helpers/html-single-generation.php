@@ -1,7 +1,7 @@
 <?php
+
 // generate single llm html of a page
 add_action( 'wp_footer', 'llm_toolkit_generate_single_js' );
-
 function llm_toolkit_generate_single_js() {
 
     if ( ! is_admin_bar_showing() ) return;

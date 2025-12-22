@@ -67,6 +67,11 @@ function llm_toolkit_openai_call( $prompt ) {
         return $data[ 'choices' ][ 0 ][ 'message' ][ 'content' ];
     }
 
+    if ( isset( $data[ 'error' ] ) ) {
+        llm_toolkit_add_status_message( 'error', 'OpenAI: ' . $data[ 'error' ][ 'message' ] );
+        return false;
+    }
+
     llm_toolkit_add_status_message( 'error', 'Error: No content retrieved from OpenAI' );
     return false;
 }
@@ -153,7 +158,13 @@ function generate_llm_html( $url, $file_path ) {
     foreach ( $html_chunks as $chunk ) {
         if ( ! empty( $custom_prompt ) ) {
             $prompt = $custom_prompt . "\n\nHTML van de pagina: \n$chunk\n\n";
-            $optimized_html_chunks[] = llm_toolkit_openai_call( $prompt ); // add optimalized chunk to array
+            $result = llm_toolkit_openai_call( $prompt );
+
+            if ( $result === false ) {
+                return false;
+            }
+
+            $optimized_html_chunks[] = $result; // add optimalized chunk to array
         } else {
             $fallback_prompt = "
                 Maak van deze HTML een cleane, semantische versie met alleen de relevante content:
@@ -173,15 +184,15 @@ function generate_llm_html( $url, $file_path ) {
             $prompt = $fallback_prompt; // fallback prompt
             $optimized_html_chunks[] = llm_toolkit_openai_call( $prompt );
 
-            llm_toolkit_add_status_message( 'error', 'Error: Failed to fetch the custom prompt, fallback prompt used' );
+            llm_toolkit_add_status_message( 'error', 'Failed to fetch the custom prompt, fallback prompt used' );
         }
     }
 
     // combine chunks into 1 html
     $llm_optimized_html = implode( "\n", $optimized_html_chunks );
 
-    if ( $llm_optimized_html == false ) {
-        llm_toolkit_add_status_message( 'error', 'Error: OpenAI response failed for the url' );
+    if ( $llm_optimized_html === '' ) {
+        llm_toolkit_add_status_message( 'error', 'OpenAI returned an empty output' );
         return false;
     }
 
@@ -198,7 +209,7 @@ function generate_llm_html( $url, $file_path ) {
         return true;
     }
 
-    llm_toolkit_add_status_message( 'error', 'Error: OpenAI return response empty for the url' );
+    llm_toolkit_add_status_message( 'error', 'OpenAI returned an empty output' );
     return false;
 }
 
@@ -223,10 +234,13 @@ function llm_toolkit_generate_single_html( $url ) {
     $success = generate_llm_html( $url, $file_path );
 
     if ( $success ) {
-        llm_toolkit_add_status_message( 'success', "Success generate single: Succesfully generated LLM HTML for $url" );
+        llm_toolkit_add_status_message( 'success', "Success generate single: Succesfully generated LLM HTML for $url and $file_path" );
         wp_send_json_success( "Generated $url" );
     } else {
-        llm_toolkit_add_status_message( 'error', "Error generate single: Failed to generate LLM HTML for $url" );
+        llm_toolkit_add_status_message( 'error', "Error generate single: Failed to generate LLM HTML for $url and $file_path" );
         wp_send_json_error( "Failed to generate $url" );
     }
+
+    // stop executing
+    wp_die();
 }
