@@ -38,10 +38,6 @@ function llm_toolkit_scripts_callback( $hook ) {
     if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_script( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
     if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_script( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-logs-page.js' );
-
-    wp_localize_script( 'llm-toolkit-page', 'llmToolkit', [
-        'ajaxHandlerUrl' => admin_url('admin-ajax.php')
-    ]);
 }
 add_action( 'admin_enqueue_scripts', 'llm_toolkit_scripts_callback' );
 
@@ -68,6 +64,29 @@ function manual_llm_html_generation( $wp_admin_bar ) {
     $wp_admin_bar->add_node( $args );
 }
 add_action( 'admin_bar_menu', 'manual_llm_html_generation', 100 );
+
+// add ajax handler
+add_action( 'wp_enqueue_scripts', function() {
+    if ( ! is_admin_bar_showing() || ! is_user_logged_in() ) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'llm-toolkit-frontend',
+        plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js',
+        ['jquery'],
+        null,
+        true
+    );
+
+    wp_localize_script(
+        'llm-toolkit-frontend',
+        'llmToolkit',
+        [
+            'ajaxHandlerUrl' => admin_url( 'admin-ajax.php' ) // set ajax handler url to be used in ajaxGenerateLLM
+        ]
+    );
+});
 
 
 
