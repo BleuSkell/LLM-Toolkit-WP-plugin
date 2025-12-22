@@ -204,7 +204,7 @@ function generate_llm_html( $url, $file_path ) {
 
 // generate single llm html with admin toolbar button
 add_action( 'wp_ajax_llm_toolkit_generate_single_html', 'llm_toolkit_generate_single_html' );
-function llm_toolkit_generate_single_html() {
+function llm_toolkit_generate_single_html( $url ) {
     if ( empty( $_POST['url'] ) ) {
         llm_toolkit_add_status_message( 'error', 'Error generate single: No URL received' );
         wp_send_json_error( 'No URL received' ); // display error alert in generate single js

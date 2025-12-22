@@ -56,7 +56,7 @@ function manual_llm_html_generation( $wp_admin_bar ) {
         'meta'  => [
             'class'     => 'llm-html-generation-button',
             'title'     => 'Generate LLM HTML for this page',
-                'onclick'   => 'ajaxGenerateLLM(' . wp_json_encode( $current_url ) . ')', // call ajax handler in settings-page.js
+            'onclick'   => 'ajaxGenerateLLM("' . $current_url . '")', // call ajax handler in settings-page.js
         ]
     ];
 
@@ -64,29 +64,6 @@ function manual_llm_html_generation( $wp_admin_bar ) {
     $wp_admin_bar->add_node( $args );
 }
 add_action( 'admin_bar_menu', 'manual_llm_html_generation', 100 );
-
-// add ajax handler
-add_action( 'wp_enqueue_scripts', function() {
-    if ( ! is_admin_bar_showing() || ! is_user_logged_in() ) {
-        return;
-    }
-
-    wp_enqueue_script(
-        'llm-toolkit-frontend',
-        plugin_dir_url( __FILE__ ) . 'assets/js/single-llm-html.js',
-        ['jquery'],
-        null,
-        true
-    );
-
-    wp_localize_script(
-        'llm-toolkit-frontend',
-        'llmToolkit',
-        [
-            'ajaxHandlerUrl' => admin_url( 'admin-ajax.php' ) // set ajax handler url to be used in ajaxGenerateLLM
-        ]
-    );
-});
 
 
 
