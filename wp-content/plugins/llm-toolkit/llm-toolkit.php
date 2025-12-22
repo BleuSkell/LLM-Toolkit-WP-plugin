@@ -56,7 +56,7 @@ function manual_llm_html_generation( $wp_admin_bar ) {
         'meta'  => [
             'class'     => 'llm-html-generation-button',
             'title'     => 'Generate LLM HTML for this page',
-            'onclick'   => "ajaxGenerateLLM('$current_url')", // call ajax handler in settings-page.js
+                'onclick'   => 'ajaxGenerateLLM(' . wp_json_encode( $current_url ) . ')', // call ajax handler in settings-page.js
         ]
     ];
 
