@@ -73,7 +73,7 @@ add_action( 'wp_enqueue_scripts', function() {
 
     wp_enqueue_script(
         'llm-toolkit-frontend',
-        plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js',
+        plugin_dir_url( __FILE__ ) . 'assets/js/single-llm-html.js',
         ['jquery'],
         null,
         true

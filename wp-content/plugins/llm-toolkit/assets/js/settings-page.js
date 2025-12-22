@@ -48,26 +48,3 @@ document.addEventListener("DOMContentLoaded", function () {
         updateHidden();
     });
 });
-
-// JS function called by admin toolbar button
-function ajaxGenerateLLM (currentPageUrl) {
-
-    if (!confirm("Generate LLMS HTML of this page. IMPORTANT!: Existing file will be overwritten!")) return;
-
-    jQuery.post(
-        llmToolkit.ajaxHandlerUrl,
-        {
-            action: 'llm_toolkit_generate_single_html', // call function to generate html
-            url: currentPageUrl,
-        },
-        function(response) {
-            if (response.success) {
-                window.alert("Successfully generated LLM HTML for this page");
-            } else {
-                window.alert("Failed to generate LLM HTML for this page, check logs");
-            }
-        }
-    ).fail(function() {
-        window.alert("An unexpected error occurred while generating the LLM HTML");
-    });
-}
