@@ -136,9 +136,13 @@ add_action( 'admin_init', function() {
         }
     ]); // sitemap selection
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_bot_detection' ); // choose detection method
-//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_api_key' );
-//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_ai_model' );
-//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_ai_max_tokens' );
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_api_key', [
+        'sanitize_callback' => function( $input ) {
+            return llm_toolkit_encrypt( $input );
+        }
+    ]);
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model' );
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens' );
 });
 
 function llm_toolkit_page() {
@@ -150,6 +154,13 @@ function llm_toolkit_page() {
     $prompt             = get_option( 'llm_toolkit_prompt' );
     $sitemaps           = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $bot_detection      = get_option( 'llm_toolkit_bot_detection', 'plugin' );
+
+    echo "encrypted: " . get_option( 'llm_toolkit_api_key' );
+
+    $api_key_decrypted      = llm_toolkit_decrypt( get_option( 'llm_toolkit_api_key' ) );
+    $api_key                = str_repeat( '*', strlen( $api_key_decrypted ) );
+    $model                  = get_option( 'llm_toolkit_ai_model' );
+    $max_tokens             = get_option( 'llm_toolkit_ai_max_tokens' );
 
     // get sitemaps
     $available_sitemaps = llm_toolkit_get_available_sitemaps();
@@ -189,10 +200,13 @@ function llm_toolkit_page() {
 
                     <div class="llm-field">
                         <label class="llm-label">AI configuration</label>
-                        <input type="text" name="_llm_toolkit_api_key" placeholder="API key" value="" />
-                        <input type="text" name="_llm_toolkit_ai_model" placeholder="Model" value="" />
-                        <input type="number" name="_llm_toolkit_max_tokens" placeholder="Max tokens" value="" />
-                        <p class="description">Configure the OpenAI API.</p>
+                        <p class="description">API key</p>
+                        <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" />
+                        <input type="checkbox" id="llm_toolkit_show_api" />
+                        <p class="description">AI model</p>
+                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="<?php echo esc_attr( $model ); ?>" />
+                        <p class="description">Maximum amount of tokens</p>
+                        <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" />
                     </div>
 
                     <div class="llm-field">
@@ -260,6 +274,21 @@ function llm_toolkit_page() {
             <p style="margin-top:20px;"><?php submit_button(); ?></p>
         </form>
     </div>
+
+    <script>
+        const apiInput = document.getElementById("llm_toolkit_api_key");
+        const apiShow = document.getElementById("llm_toolkit_show_api");
+        const apiMasked = "<?php echo esc_js($api_key); ?>";
+        const apiUnMasked = "<?php echo esc_js($api_key_decrypted); ?>";
+
+        apiShow.addEventListener('change', function() {
+            if (this.checked) {
+                apiInput.value = apiUnMasked;
+            } else {
+                apiInput.value = apiMasked;
+            }
+        });
+    </script>
 
     <?php
 }
@@ -356,6 +385,8 @@ function bot_logs_page() {
 /*
  *   admin pages helper methods
  */
+require_once __DIR__ . '/includes/helpers/encryption.php';
+
 require_once __DIR__ . '/includes/helpers/status-logs.php';
 
 require_once __DIR__ . '/includes/helpers/bot-logs.php';

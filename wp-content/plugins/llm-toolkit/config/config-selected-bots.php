@@ -3,4 +3,4 @@
 $allowed_bots   = get_option('llm_toolkit_allowed_bots', []);
 $export         = json_encode( ( array_values( $allowed_bots ) ) );
 
-file_put_contents(WP_PLUGIN_DIR . '/llm-toolkit/config/llm-toolkit-selected-bots.json', $export, LOCK_EX);
+file_put_contents(WP_CONTENT_DIR . '/llm-toolkit-selected-bots.json', $export, LOCK_EX);
