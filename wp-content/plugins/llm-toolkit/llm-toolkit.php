@@ -6,14 +6,16 @@
  * Author: Kyano
  */
 
-/*
- *  initializations
- */
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-require_once __DIR__ . '/includes/bot-detection.php';
+
+
+/*
+ *  bot detection
+ */
+require_once __DIR__ . '/includes/detection/bot-detection.php';
 
 // add bot detection on plugin activation
 register_activation_hook( __FILE__, function() {
@@ -25,6 +27,11 @@ register_deactivation_hook( __FILE__, function() {
     llm_toolkit_sync_detector( false ); // remove detector if plugin disabled
 });
 
+
+
+/*
+ *  initializations
+ */
 // load styling
 function llm_toolkit_styling_callback( $hook ) {
     if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_style( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/css/settings-page.css' );
@@ -129,6 +136,9 @@ add_action( 'admin_init', function() {
         }
     ]); // sitemap selection
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_bot_detection' ); // choose detection method
+//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_api_key' );
+//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_ai_model' );
+//    register_setting( 'llm_toolkit_settings', '_llm_toolkit_ai_max_tokens' );
 });
 
 function llm_toolkit_page() {
@@ -137,7 +147,7 @@ function llm_toolkit_page() {
     $enabled            = get_option( 'llm_toolkit_enabled', '1' );
     $cron_enabled       = get_option( 'llm_toolkit_cron_enabled', '0' );
     $allowed_bots       = get_option( 'llm_toolkit_allowed_bots', [] );
-    $prompt            = get_option( 'llm_toolkit_prompt' );
+    $prompt             = get_option( 'llm_toolkit_prompt' );
     $sitemaps           = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $bot_detection      = get_option( 'llm_toolkit_bot_detection', 'plugin' );
 
@@ -175,6 +185,14 @@ function llm_toolkit_page() {
                         <label class="llm-label">Enable cron job</label>
                         <input type="checkbox" name="llm_toolkit_cron_enabled" value="1" <?php checked( $cron_enabled, '1' ); ?> />
                         <p class="description">Runs the LLM HTML generator periodically.</p>
+                    </div>
+
+                    <div class="llm-field">
+                        <label class="llm-label">AI configuration</label>
+                        <input type="text" name="_llm_toolkit_api_key" placeholder="API key" value="" />
+                        <input type="text" name="_llm_toolkit_ai_model" placeholder="Model" value="" />
+                        <input type="number" name="_llm_toolkit_max_tokens" placeholder="Max tokens" value="" />
+                        <p class="description">Configure the OpenAI API.</p>
                     </div>
 
                     <div class="llm-field">
@@ -264,7 +282,7 @@ function status_logs_page() {
             <div id="llm-status-list-container" class="llm-log-box">
                 <ul id="llm-status-list" class="llm-log-list">
                     <?php
-                    $logs = get_option( 'llm_toolkit_status_logs', [] );
+                    $logs = llm_toolkit_get_file_logs( 100 );
 
                     foreach ( $logs as $log ) {
                         if ( $log[ 'type' ] === 'bot_request_logs' ) continue;
@@ -319,25 +337,14 @@ function bot_logs_page() {
             <div class="llm-logs-box" id="llm-bot-logs-container">
                 <ul id="llm-bot-logs">
                     <?php
-                    $logs = get_option( 'llm_toolkit_bot_logs', [] );
+                    $logs = llm_toolkit_get_bot_requests_from_access_log( 200 );
 
                     foreach ( $logs as $log ) {
-                        $class = 'llm-log-default';
-                        if ( $log[ 'type' ] === 'bot_request_logs' ) {
-                            $class = 'llm-log-request';
-                        }
-
-                        echo "<li class='$class'>[" . esc_html( $log[ 'time' ] ) . "] " . esc_html( $log[ 'message' ] ) . "</li>";
+                        echo "<li class='llm-log-request'>[" . esc_html( $log[ 'time' ] ) . "] " . esc_html( $log[ 'user_agent' ] ) ."</li>";
                     }
                     ?>
                 </ul>
             </div>
-
-            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="llm-clear-form">
-                <input type="hidden" name="action" value="llm_toolkit_clear_bot_logs" />
-                <?php wp_nonce_field( 'llm_toolkit_clear_bot_logs_nonce' ); ?>
-                <input type="submit" class="button button-secondary" value="Clear Bot Logs" />
-            </form>
         </div>
     </div>
 
@@ -364,7 +371,7 @@ require_once __DIR__ . '/includes/helpers/get-available-sitemaps.php';
 /*
  *   llm html generation methods
  */
-require_once __DIR__ . '/includes/html-generation.php';
+require_once __DIR__ . '/includes/html-generation/html-generation.php';
 
 
 

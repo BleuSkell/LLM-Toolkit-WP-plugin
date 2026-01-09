@@ -1,78 +1,47 @@
 <?php
-// add bot logs
-function llm_toolkit_add_bot_logs( $type, $message ) {
+// path to access log
+define( 'ACCESS_LOG', '/data/sites/web/stagingbegenl/logs/access.log' );
 
-    // initiate bot logs
-    $logs = get_option( 'llm_toolkit_bot_logs', [] );
-
-    // format bot logs
-    $logs[] = [
-        'type'      => $type,
-        'message'   => $message,
-        'time'      => current_time( 'Y-m-d H:i:s' ),
-    ];
-
-    // limit bot logs to the latest 100
-    if ( count( $logs ) > 100 ) {
-        $logs = array_slice( $logs, -100 );
-    }
-
-    // update with logs
-    update_option( 'llm_toolkit_bot_logs', $logs );
-}
-
-// bot requests logging
-function llm_toolkit_bot_request_logs() {
-    $user_agent = $_SERVER[ 'HTTP_USER_AGENT' ] ?? '';
-
+// check if visitor is a bot
+function llm_toolkit_is_bot( $user_agent ) {
     $bot_regex = "/(?i)\b(claude|bot|crawler|crawl|spider|slurp|fetch|search|monitor|scraper|python|perl|php|java|wget|curl|httpclient|libwww|bingpreview|mediapartners-google|applebot|yahoo|yandex|baiduspider|duckduckbot|semrush|ahrefs|mj12bot|rogerbot|dotbot|gigabot|seznambot|petalbot|sogou|exabot|facebookexternalhit|twitterbot|linkedinbot|pinterest|embedly|quora link preview|discordbot|telegrambot)\b/";
-
-    $ip_address = ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) ? $_SERVER[ 'REMOTE_ADDR' ] : $_SERVER[ 'HTTP_X_FORWARDED_FOR' ];
-    $page_request_url = $_SERVER[ 'REQUEST_URI' ];
-
-    // check if visitor is a bot
-    if ( ! preg_match( $bot_regex, $user_agent ) ) {
-        return;
-    }
-
-    // create unique key per bot + page
-    $log_key = 'bot_log_' . md5( $user_agent . $page_request_url );
-
-    // if no log exists for the key create one
-    if ( ! get_transient( $log_key ) ) {
-
-        // log the bot request
-        llm_toolkit_add_bot_logs(
-            'bot_request_logs',
-            "The following bot has been detected: $user_agent, visiting $page_request_url at IP: $ip_address"
-        );
-
-        // save as transient for the next 24 hours so it doesn't continue logging
-        set_transient( $log_key, true, 24 * HOUR_IN_SECONDS );
-    }
+    return preg_match( $bot_regex, $user_agent );
 }
 
-// live bot logs
-add_action( 'wp_ajax_llm_toolkit_get_bot_logs', function() {
-
-    // get logs from llm_toolkit_add_bot_logs method
-    $logs = get_option( 'llm_toolkit_bot_logs', [] );
-
-    // Return latest 100 logs as JSON
-    wp_send_json( $logs );
-});
-
-// clear bot logs
-add_action( 'admin_post_llm_toolkit_clear_bot_logs', function() {
-    // Check nonce for security
-    if ( ! isset( $_POST[ '_wpnonce' ] ) || ! wp_verify_nonce( $_POST[ '_wpnonce' ], 'llm_toolkit_clear_bot_logs_nonce' ) ) {
-        wp_die( 'Nonce check failed' );
+function llm_toolkit_get_bot_requests_from_access_log( $limit ) {
+    if ( ! file_exists( ACCESS_LOG ) ) {
+        return [];
     }
 
-    // Clear status logs
-    update_option( 'llm_toolkit_bot_logs', [] );
+    // get file contents from access log
+    $lines = array_slice( file( ACCESS_LOG, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ), -2000 );
 
-    // redirect back to status page
-    wp_safe_redirect( admin_url( 'admin.php?page=bot-logs' ) );
-    exit;
+    $bots = [];
+    foreach ( $lines as $line ) {
+        if ( preg_match( '/^(\S+) .*? \[(.*?)\] ".*?" \d+ \d+ ".*?" "(.*?)"$/', $line, $matches ) ) {
+            $ip = $matches[1];
+            $time = $matches[2];
+            $user_agent = $matches[3];
+
+            // check if the user agent is a bot
+            if ( llm_toolkit_is_bot( $user_agent ) ) {
+                // add log to bots array
+                $bots[] = [
+                    'time' => $time,
+                    'ip' => $ip,
+                    'user_agent' => $user_agent,
+                    'raw_line' => $line,
+                ];
+            }
+        }
+    }
+
+    // return bots with limit
+    return array_slice( $bots, -$limit );
+}
+
+// ajax callback
+add_action( 'wp_ajax_llm_toolkit_get_bot_logs', function() {
+    $bots = llm_toolkit_get_bot_requests_from_access_log( 200 );
+    wp_send_json( $bots );
 });

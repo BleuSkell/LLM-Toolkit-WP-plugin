@@ -30,13 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 messages.forEach(msg => {
                     const li = document.createElement("li");
 
-                    if (msg.type === 'bot_request_logs') {
-                        li.className = 'llm-log-request';
-                    } else {
-                        li.className = 'llm-log-default';
-                    }
+                    li.className = 'llm-log-request';
 
-                    li.textContent = `[${msg.time}] ${msg.message}`;
+                    li.textContent = `[${msg.time}] ${msg.user_agent}`;
                     list.appendChild(li);
                 });
 
