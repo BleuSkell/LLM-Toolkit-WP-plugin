@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const botBody = document.getElementById("llm-bot-body");
     const hiddenBots = document.getElementById("bots-hidden");
 
+    const sitemapCheckboxes = document.querySelectorAll('input[name="llm_toolkit_selected_sitemaps[]"]');
+    const promptBlocks = document.querySelectorAll('.prompt-block');
     const promptCheckboxes = document.querySelectorAll(".llm-prompt-checkbox");
 
     // Load existing bots
@@ -48,6 +50,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         row.remove();
         updateHidden();
+    });
+
+    sitemapCheckboxes.forEach(cb => {
+        cb.addEventListener("change", function() {
+            const sitemap = this.value;
+            const block = document.querySelector(`.prompt-block[data-sitemap="${sitemap}"]`);
+
+            if (this.checked) {
+                block.style.display = '';
+            } else {
+                block.style.display = 'none';
+            }
+        });
     });
 
     promptCheckboxes.forEach(checkbox => {

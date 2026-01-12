@@ -147,7 +147,7 @@ add_action( 'admin_init', function() {
             }
             return [];
         }
-    ]);
+    ]); // checkboxes for the custom prompts
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
@@ -245,36 +245,40 @@ function llm_toolkit_page() {
                         <p class="description">This tells the cron which sitemaps to generate llm html for.</p>
                     </div>
 
-                    <?php if ( ! empty( $selected_sitemaps ) ) : ?>
-                        <?php foreach ( $selected_sitemaps as $sitemap ) : ?>
-                            <?php
-                                $sitemap_key    = md5( $sitemap );
-                                $prompt_value   = $prompts[ $sitemap_key ] ?? '';
-                                $is_custom      = ! empty( $prompt_checkboxes[ $sitemap_key ] );
-                            ?>
-                            <div class="llm-field">
-                                <label class="llm-label">Prompt for <?php echo esc_html( basename( $sitemap ) ); ?></label>
-                                <textarea
-                                        name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
-                                        id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
-                                        rows="8"
-                                        placeholder="Enter instructions for the LLM generator"
-                                        required
+                    <?php foreach ( $available_sitemaps as $sitemap ) : ?>
+                        <?php
+                            $sitemap_key = md5( $sitemap );
+                            $prompt_value = $prompts[ $sitemap_key ] ?? '';
+                            $is_custom  = ! empty( $prompt_checkboxes[ $sitemap_key ] );
+                            $is_enabled = in_array( $sitemap, $selected_sitemaps );
+                        ?>
+                        <div
+                            class="llm-field prompt-block"
+                            data-sitemap="<?php echo esc_attr( $sitemap ); ?>"
+                            style="<?php echo $is_enabled ? '' : 'display:none;'; ?>"
+                        >
+                            <label class="llm-label">Prompt for <?php echo esc_html( basename( $sitemap ) ); ?></label>
+                            <textarea
+                                    name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                    id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                    rows="8"
+                                    placeholder="Enter instructions for the LLM generator"
+                                    required
                                         <?php echo $is_custom ? '' : 'readonly style="color: gray;"' ?>
                                 ><?php echo esc_textarea( $prompt_value ); ?></textarea>
-                                <div>
-                                    <input type="checkbox"
-                                        class="llm-prompt-checkbox"
-                                        name="llm_toolkit_prompt_checkboxes[<?php echo esc_attr( $sitemap_key ); ?>]"
-                                        data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
-                                        <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
-                                    />
-                                    <p class="description">Use custom prompt</p>
-                                </div>
-                                <p class="description">This prompt controls how the LLM generates optimized HTML for <?php echo esc_html( basename( $sitemap ) ); ?>.</p>
+                            
+                            <div>
+                                <input type="checkbox"
+                                       class="llm-prompt-checkbox"
+                                       name="llm_toolkit_prompt_checkboxes[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                       data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                    <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
+                                />
+                                <p class="description">Use custom prompt</p>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                            <p class="description">This prompt controls how the LLM generates optimized HTML for <?php echo esc_html( basename( $sitemap ) ); ?>.</p>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
                 <!-- right settings card -->
