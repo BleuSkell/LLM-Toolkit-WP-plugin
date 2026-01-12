@@ -47,7 +47,14 @@ add_action( 'wp_enqueue_scripts', 'llm_toolkit_frontend_styles' );
 
 // load scripts
 function llm_toolkit_scripts_callback( $hook ) {
-    if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_script( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
+    if ( $hook === 'toplevel_page_llm-toolkit' ) {
+        wp_enqueue_script( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
+        $script_params = [
+            'custom_prompts'    => get_option( 'llm_toolkit_prompts', [] ),
+            'prompt_checkboxes' => get_option( 'llm_toolkit_prompt_checkboxes', [] ),
+        ];
+        wp_localize_script( 'llm-toolkit-page', 'scriptParams', $script_params );
+    }
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
     if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_script( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-logs-page.js' );
 }
@@ -125,7 +132,22 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // bot selection
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompt' ); // custom prompt per sitemap
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompts', [
+        'sanitize_callback' => function($input) {
+            if ( is_array( $input ) ) {
+                return array_map( 'sanitize_textarea_field', $input );
+            }
+            return [];
+        }
+    ]); // custom prompt per sitemap
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompt_checkboxes', [
+        'sanitize_callback' => function($input) {
+            if ( is_array( $input ) ) {
+                return array_map( 'sanitize_text_field', $input );
+            }
+            return [];
+        }
+    ]);
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
@@ -151,16 +173,14 @@ function llm_toolkit_page() {
     $enabled            = get_option( 'llm_toolkit_enabled', '1' );
     $cron_enabled       = get_option( 'llm_toolkit_cron_enabled', '0' );
     $allowed_bots       = get_option( 'llm_toolkit_allowed_bots', [] );
-    $prompt             = get_option( 'llm_toolkit_prompt' );
+    $prompts            = get_option( 'llm_toolkit_prompts', [] );
+    $prompt_checkboxes  = get_option( 'llm_toolkit_prompt_checkboxes', [] );
     $sitemaps           = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $bot_detection      = get_option( 'llm_toolkit_bot_detection', 'plugin' );
 
-    echo "encrypted: " . get_option( 'llm_toolkit_api_key' );
-
-    $api_key_decrypted      = llm_toolkit_decrypt( get_option( 'llm_toolkit_api_key' ) );
-    $api_key                = str_repeat( '*', strlen( $api_key_decrypted ) );
-    $model                  = get_option( 'llm_toolkit_ai_model' );
-    $max_tokens             = get_option( 'llm_toolkit_ai_max_tokens' );
+    $api_key            = llm_toolkit_decrypt( get_option( 'llm_toolkit_api_key' ) );
+    $model              = get_option( 'llm_toolkit_ai_model' );
+    $max_tokens         = get_option( 'llm_toolkit_ai_max_tokens' );
 
     // get sitemaps
     $available_sitemaps = llm_toolkit_get_available_sitemaps();
@@ -170,7 +190,7 @@ function llm_toolkit_page() {
     require_once __DIR__ . '/config/config-selected-bots.php';
 
     // syncs bot detection code with admin settings when saved
-    update_option( 'llm_toolkit_enabled', $enabled ); // save in wp_options so wp remembers
+    update_option( 'llm_toolkit_enabled', $enabled ); // save in wp_options
     llm_toolkit_sync_detector( (bool) $enabled ); // set llm_toolkit_enabled to true/false and tells the method what to do
     ?>
 
@@ -201,12 +221,11 @@ function llm_toolkit_page() {
                     <div class="llm-field">
                         <label class="llm-label">AI configuration</label>
                         <p class="description">API key</p>
-                        <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" />
-                        <input type="checkbox" id="llm_toolkit_show_api" />
+                        <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" required />
                         <p class="description">AI model</p>
-                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="<?php echo esc_attr( $model ); ?>" />
+                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="<?php echo esc_attr( $model ); ?>" required />
                         <p class="description">Maximum amount of tokens</p>
-                        <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" />
+                        <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" required />
                     </div>
 
                     <div class="llm-field">
@@ -226,11 +245,36 @@ function llm_toolkit_page() {
                         <p class="description">This tells the cron which sitemaps to generate llm html for.</p>
                     </div>
 
-                    <div class="llm-field">
-                        <label class="llm-label">Prompt</label>
-                        <textarea name="llm_toolkit_prompt" rows="8" placeholder="Enter instructions for the LLM generator"><?php echo esc_textarea( $prompt ); ?></textarea>
-                        <p class="description">This prompt controls how the LLM generates optimized HTML.</p>
-                    </div>
+                    <?php if ( ! empty( $selected_sitemaps ) ) : ?>
+                        <?php foreach ( $selected_sitemaps as $sitemap ) : ?>
+                            <?php
+                                $sitemap_key    = md5( $sitemap );
+                                $prompt_value   = $prompts[ $sitemap_key ] ?? '';
+                                $is_custom      = ! empty( $prompt_checkboxes[ $sitemap_key ] );
+                            ?>
+                            <div class="llm-field">
+                                <label class="llm-label">Prompt for <?php echo esc_html( basename( $sitemap ) ); ?></label>
+                                <textarea
+                                        name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                        id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                        rows="8"
+                                        placeholder="Enter instructions for the LLM generator"
+                                        required
+                                        <?php echo $is_custom ? '' : 'readonly style="color: gray;"' ?>
+                                ><?php echo esc_textarea( $prompt_value ); ?></textarea>
+                                <div>
+                                    <input type="checkbox"
+                                        class="llm-prompt-checkbox"
+                                        name="llm_toolkit_prompt_checkboxes[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                        data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                        <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
+                                    />
+                                    <p class="description">Use custom prompt</p>
+                                </div>
+                                <p class="description">This prompt controls how the LLM generates optimized HTML for <?php echo esc_html( basename( $sitemap ) ); ?>.</p>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
 
                 <!-- right settings card -->
@@ -274,21 +318,6 @@ function llm_toolkit_page() {
             <p style="margin-top:20px;"><?php submit_button(); ?></p>
         </form>
     </div>
-
-    <script>
-        const apiInput = document.getElementById("llm_toolkit_api_key");
-        const apiShow = document.getElementById("llm_toolkit_show_api");
-        const apiMasked = "<?php echo esc_js($api_key); ?>";
-        const apiUnMasked = "<?php echo esc_js($api_key_decrypted); ?>";
-
-        apiShow.addEventListener('change', function() {
-            if (this.checked) {
-                apiInput.value = apiUnMasked;
-            } else {
-                apiInput.value = apiMasked;
-            }
-        });
-    </script>
 
     <?php
 }

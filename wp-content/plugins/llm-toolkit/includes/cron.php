@@ -50,7 +50,13 @@ function llm_generate_batch_callback() {
     set_transient( 'llm_generate_batch_lock', true, 460 ); // lock for 5 minutes
 
     // get remaining pages queue from transient
-    $remaining_pages = get_transient( 'llm_remaining_pages' );
+    $data = get_transient( 'llm_remaining_pages' );
+    if ( $data ) {
+        $remaining_pages = $data[ 'queue' ];
+        $url_to_sitemap  = $data[ 'mapping' ];
+    } else {
+        $remaining_pages = null;
+    }
 
     // if there's no pages queue build a new one based on the sitemap
     if ( ! $remaining_pages ) {
@@ -63,8 +69,13 @@ function llm_generate_batch_callback() {
             return;
         }
 
+        $url_to_sitemap = [];
         foreach ( $selected_sitemaps as $sitemap_url ) {
-            $urls = array_merge( $urls, read_sitemap( $sitemap_url ) ); // page urls
+            $sitemap_urls = read_sitemap( $sitemap_url );
+            foreach ( $sitemap_urls as $url ) {
+                $urls[] = $url;
+                $url_to_sitemap[ $url ] = $sitemap_url;
+            }
         }
 
         $remaining_pages = [];
@@ -98,14 +109,17 @@ function llm_generate_batch_callback() {
 
     // process the batch
     foreach ( $batch as $url ) {
+        $sitemap_url = $url_to_sitemap[ $url ] ?? '';
+
         $uri = wp_parse_url( $url, PHP_URL_PATH );
         $clean = trim( $uri, '/' );
         $clean = $clean ?: 'index';
 
         $file_path = WP_CONTENT_DIR . '/llms/' . $clean . '.html';
 
-        if ( !file_exists( $file_path ) ) {
-            $success = generate_llm_html( $url, $file_path );
+        if ( ! file_exists( $file_path ) ) {
+            $success = generate_llm_html( $url, $file_path, $sitemap_url );
+
             if ( $success ) {
                 llm_toolkit_add_status_message( 'success', "Success: LLMS HTML file generated for $clean" );
             } else {
@@ -123,7 +137,10 @@ function llm_generate_batch_callback() {
 
     // save remaining pages for the next cron run
     if ( ! empty( $remaining_pages ) ) {
-        set_transient( 'llm_remaining_pages', $remaining_pages, 12 * HOUR_IN_SECONDS );
+        set_transient( 'llm_remaining_pages', [
+            'queue'     => $remaining_pages,
+            'mapping'   => $url_to_sitemap
+        ], 12 * HOUR_IN_SECONDS );
     } else {
         delete_transient( 'llm_remaining_pages' );
         llm_toolkit_add_status_message( 'cron', 'Success: Batch processing complete' );
