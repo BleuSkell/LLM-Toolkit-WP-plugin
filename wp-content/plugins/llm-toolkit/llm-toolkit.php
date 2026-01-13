@@ -222,8 +222,20 @@ function llm_toolkit_page() {
                         <label class="llm-label">AI configuration</label>
                         <p class="description">API key</p>
                         <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" required />
+
                         <p class="description">AI model</p>
-                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="<?php echo esc_attr( $model ); ?>" required />
+<!--                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="--><?php //echo esc_attr( $model ); ?><!--" required />-->
+                        <select name="llm_toolkit_ai_model" id="llm_toolkit_ai_model">
+                            <option value="<?php echo esc_attr( $model ); ?>"><?php echo esc_attr( $model ); ?></option>
+                            <option value="gpt-5.2-pro">gpt-5.2-pro</option>
+                            <option value="gpt-5.2">gpt-5.2</option>
+                            <option value="gpt-5.1">gpt-5.1</option>
+                            <option value="gpt-5">gpt-5</option>
+                            <option value="gpt-5-mini">gpt-5-mini</option>
+                            <option value="gpt-5-nano">gpt-5-nano</option>
+                            <option value="gpt-4.1">gpt-4.1</option>
+                        </select>
+
                         <p class="description">Maximum amount of tokens</p>
                         <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" required />
                     </div>
@@ -266,7 +278,7 @@ function llm_toolkit_page() {
                                     required
                                         <?php echo $is_custom ? '' : 'readonly style="color: gray;"' ?>
                                 ><?php echo esc_textarea( $prompt_value ); ?></textarea>
-                            
+
                             <div>
                                 <input type="checkbox"
                                        class="llm-prompt-checkbox"
