@@ -32,31 +32,19 @@ function llm_toolkit_openai_call( $prompt ) {
     $api_model  = get_option( 'llm_toolkit_ai_model' );
     $max_tokens = get_option( 'llm_toolkit_ai_max_tokens' );
 
-    $body = [
-        'model' => $api_model,
-        'messages' => [
-            [
-                'role'      => 'user',
-                'content'   => $prompt,
-            ]
-        ],
-        'max_completion_tokens' => (int) $max_tokens,
-    ];
+    require_once WP_PLUGIN_DIR . '/llm-toolkit/config/api-models.php';
 
-    $response = wp_remote_post(
-        'https://api.openai.com/v1/chat/completions',
-        [
-            'headers' => [
-                'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . $api_key,
-            ],
-            'body'      => wp_json_encode( $body ),
-            'timeout'   => 120,
-        ]
-    );
+    switch ( $api_model ) {
+        case 'gpt-5.1':
+            $response = llm_toolkit_5_1( $api_key, $api_model, $max_tokens, $prompt );
+            break;
+        default:
+            llm_toolkit_add_status_message( 'error', 'OpenAI call: unsuported model: ' . $api_model );
+            return false;
+    }
 
     if ( is_wp_error( $response ) ) {
-        llm_toolkit_add_status_message( 'error', 'OpenAI call: ' . $response->get_error_message() );
+        llm_toolkit_add_status_message( 'error', 'OpenAI call: wordpress error retrieved: ' . $response->get_error_message() );
         return false;
     }
 
@@ -67,7 +55,7 @@ function llm_toolkit_openai_call( $prompt ) {
     }
 
     if ( isset( $data[ 'error' ] ) ) {
-        llm_toolkit_add_status_message( 'error', 'OpenAI call: ' . $data[ 'error' ][ 'message' ] );
+        llm_toolkit_add_status_message( 'error', 'OpenAI call: error from API: ' . $data[ 'error' ][ 'message' ] );
         return false;
     }
 

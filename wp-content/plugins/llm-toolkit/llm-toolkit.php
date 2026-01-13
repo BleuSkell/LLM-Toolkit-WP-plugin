@@ -224,7 +224,6 @@ function llm_toolkit_page() {
                         <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" required />
 
                         <p class="description">AI model</p>
-<!--                        <input type="text" name="llm_toolkit_ai_model" id="llm_toolkit_ai_model" placeholder="Model" value="--><?php //echo esc_attr( $model ); ?><!--" required />-->
                         <select name="llm_toolkit_ai_model" id="llm_toolkit_ai_model">
                             <option value="<?php echo esc_attr( $model ); ?>"><?php echo esc_attr( $model ); ?></option>
                             <option value="gpt-5.1">gpt-5.1</option>
