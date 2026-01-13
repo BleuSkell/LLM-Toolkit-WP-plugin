@@ -26,48 +26,48 @@ function read_sitemap( $sitemap_url ) {
 
 // helper method to call the OpenAI API
 function llm_toolkit_openai_call( $prompt ) {
-    include WP_PLUGIN_DIR . '/llm-toolkit/config/api-models.php';
-    $path = WP_PLUGIN_DIR . '/llm-toolkit/config/api-models.php';
-    llm_toolkit_add_status_message( 'success', 'OpenAI call: ' . $path );
 
+    // set OpenAI API configs in wp-config for access and security
     $api_key    = llm_toolkit_decrypt( get_option( 'llm_toolkit_api_key' ) );
     $api_model  = get_option( 'llm_toolkit_ai_model' );
     $max_tokens = get_option( 'llm_toolkit_ai_max_tokens' );
 
-    switch ( $api_model ) {
-        case 'gpt-5.1':
-            $response = llm_toolkit_5_1( $api_key, $api_model, $max_tokens, $prompt );
-            llm_toolkit_add_status_message( 'success', 'OpenAI call: successfully fetched the response' );
-            break;
-        default:
-            llm_toolkit_add_status_message( 'error', 'OpenAI call: Invalid API model selected: ' . $api_model );
-            return false;
-    }
+    $body = [
+        'model' => $api_model,
+        'messages' => [
+            [
+                'role'      => 'user',
+                'content'   => $prompt,
+            ]
+        ],
+        'max_completion_tokens' => (int) $max_tokens,
+    ];
+
+    $response = wp_remote_post(
+        'https://api.openai.com/v1/chat/completions',
+        [
+            'headers' => [
+                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer ' . $api_key,
+            ],
+            'body'      => wp_json_encode( $body ),
+            'timeout'   => 120,
+        ]
+    );
 
     if ( is_wp_error( $response ) ) {
         llm_toolkit_add_status_message( 'error', 'OpenAI call: ' . $response->get_error_message() );
         return false;
     }
 
-    llm_toolkit_add_status_message( 'success', 'OpenAI call: No wp errors found' );
-
     $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-    llm_toolkit_add_status_message( 'success', 'OpenAI call: correctly fetched and decoded the response' );
-
     if ( isset( $data[ 'choices' ][ 0 ][ 'message' ][ 'content' ] ) ) {
-        $content = $data[ 'choices' ][ 0 ][ 'message' ][ 'content' ];
-
-        $content = preg_replace('/```html\s*/', '', $content);
-        $content = preg_replace('/```\s*/', '', $content);
-        $content = trim( $content );
-
-        llm_toolkit_add_status_message( 'success', 'OpenAI call: response content set: ' . substr( $content, 0, 200 ) );
-        return $content;
+        return $data[ 'choices' ][ 0 ][ 'message' ][ 'content' ];
     }
 
     if ( isset( $data[ 'error' ] ) ) {
-        llm_toolkit_add_status_message( 'error', 'OpenAI call: something went wrong with returning the data from response ' . $data[ 'error' ][ 'message' ] );
+        llm_toolkit_add_status_message( 'error', 'OpenAI call: ' . $data[ 'error' ][ 'message' ] );
         return false;
     }
 

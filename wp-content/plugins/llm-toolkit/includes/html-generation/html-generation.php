@@ -11,16 +11,12 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
         return false;
     }
 
-    llm_toolkit_add_status_message( 'success', 'Success: Fetched the url' );
-
     // fetch the html from $response and check if the HTML is received
     $html = wp_remote_retrieve_body( $response );
     if ( empty( $html ) ) {
         llm_toolkit_add_status_message( 'error', 'Error: Empty HTML retrieved from the url' );
         return false;
     }
-
-    llm_toolkit_add_status_message( 'success', 'Success: Fetched the html' );
 
     // convert to HTML-ENTITIES to process special chars correctly
     $html = mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' );
@@ -64,8 +60,9 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
                     // extra filtering for meta tags, keeping the SEO-relevant ones
                     if ( $tag === 'meta' ) {
                         $nameAttr = $node->getAttribute( 'name' );
+
+                        // tags for robots, description, viewport are relevant for LLMs
                         if ( ! in_array( strtolower( $nameAttr ), [ 'robots', 'description', 'viewport' ] ) ) {
-                            $head->removeChild( $node );
                             continue;
                         }
                     }
@@ -123,109 +120,72 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
     }
 
     $optimized_body_chunks = [];
-    $chunk_count = 0;
-
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: Starting to process: ' . count( $html_chunks ) . ' chunks' );
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: First chunk preview: ' . substr($html_chunks[0], 0, 100) );
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: Memory usage: ' . memory_get_usage(true) / 1024 / 1024 . ' MB' );
-
     foreach ( $html_chunks as $chunk ) {
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: Processing chunk #' ( $chunk_count + 1 ) . ' - size: ' . strlen( $chunk ) . ' chars' );
-
         if ( ! empty( $custom_prompt ) ) {
             $prompt = $custom_prompt . "\n\nHTML:\n$chunk\n\n";
         } else {
             $prompt = $fallback_prompt . "\n\nHTML:\n$chunk\n\n";
         }
 
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: Calling OpenAI for chunk #' . ( $chunk_count + 1 ) );
-
         // send the HTML chunk to OpenAI
         $result = llm_toolkit_openai_call( $prompt );
-        $chunk_count++;
 
         // if the OpenAI API call fails stop the entire process
         if ( $result === false ) {
-            llm_toolkit_add_status_message( 'error', 'Generate HTML: OpenAI call failed for html chunk #' . $chunk_count );
             return false;
         }
 
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: successful OpenAI call for html chunk #' . $chunk_count );
-
         // convert the result to the right encoding and add them to the array
-//        $result = mb_convert_encoding( $result, 'HTML-ENTITIES', 'UTF-8' );
+        $result = mb_convert_encoding( $result, 'HTML-ENTITIES', 'UTF-8' );
         $optimized_body_chunks[] = $result;
-
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: added chunk #' . $chunk_count . ' to array' );
     }
 
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: foreach loop completed. Total chunks: ' . count($optimized_body_chunks) );
-
+    // create a new DOMDocument for the optimalized HTML
     $new_dom = new DOMDocument();
-    $new_dom->loadHTML(
-        '<!DOCTYPE html><html><head></head><body></body></html>',
-        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-    );
-
-    $target_head = $new_dom->getElementsByTagName( 'head' )->item( 0 );
-    $target_body = $new_dom->getElementsByTagName( 'body' )->item( 0 );
-
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: created new dom' );
+    // start with a base HTML structure
+    @$new_dom->loadHTML( '<?xml encoding="utf-8"?><!DOCTYPE html><html></html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 
     // add cleaned head to the new document with all childNodes
-    foreach ( iterator_to_array( $head->childNodes ) as $node ) {
-        if ( $node->nodeType === XML_ELEMENT_NODE ) {
-            $target_head->appendChild( $new_dom->importNode( $node, true ) );
-        }
+    if ( $head ) {
+        $imported_head = $new_dom->importNode( $head, true );
+        $new_dom->documentElement->appendChild( $imported_head );
     }
+
+    // create a new body tag
+    $body_wrapper = $new_dom->createElement( 'body' );
 
     // loop through all optimized HTML chunks
     foreach ( $optimized_body_chunks as $chunk ) {
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: Processing chunk: ' . substr( $chunk, 0, 100 ) );
-
         // create a temporary DOMDocument to parse the chunk HTML
         $tmp_dom = new DOMDocument();
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: created temp dom document' );
-
-        $load_result = @$tmp_dom->loadHTML( '<html><body>' . $chunk . '</body></html>', LIBXML_HTML_NOIMPLIED| LIBXML_HTML_NODEFDTD );
-
-        if ( ! $load_result ) {
-            llm_toolkit_add_status_message( 'error', 'Generate HTML: Failed to load chunk HTML into temp DOM' );
-            continue;
-        }
-
+        @$tmp_dom->loadHTML( '<?xml encoding="utf-8"?><body>' . $chunk . '</body>', LIBXML_HTML_NOIMPLIED| LIBXML_HTML_NODEFDTD );
         $tmp_body = $tmp_dom->getElementsByTagName( 'body' )->item( 0 );
 
         // import all nodes from the chunk into the main document
         if ( $tmp_body ) {
-            llm_toolkit_add_status_message( 'success', 'Generate HTML: temp body created' );
-            foreach ( iterator_to_array( $tmp_body->childNodes ) as $node ) {
+            foreach ( $tmp_body->childNodes as $node ) {
                 // import all nodes and add to the body wrapper
-                if ( $node->nodeType === XML_ELEMENT_NODE || $node->nodeType === XML_TEXT_NODE ) {
-                    $target_body->appendChild( $new_dom->importNode( $node, true ) );
-                }
-                llm_toolkit_add_status_message( 'success', 'Generate HTML: appended temp body childNode to body wrapper' );
+                $imported = $new_dom->importNode( $node, true );
+                $body_wrapper->appendChild( $imported );
             }
         }
     }
 
+    // add the complete body to the document
+    $new_dom->documentElement->appendChild( $body_wrapper );
+
     // create the file directory if it doesn't exist yet
     if ( ! is_dir( dirname($file_path) ) ) {
         mkdir( dirname( $file_path ), 0755, true );
-        llm_toolkit_add_status_message( 'success', 'Generate HTML: directory created' );
     }
 
     // put optimized content in the file and convert to UTF-8
-    file_put_contents( $file_path, $new_dom->saveHTML() );
-    llm_toolkit_add_status_message( 'success', 'Generate HTML: successfully put content into ' . $file_path );
+    file_put_contents( $file_path, mb_convert_encoding( $new_dom->saveHTML(), 'UTF-8', 'HTML-ENTITIES' ) );
     return true;
 }
 
 // generate single llm html with admin toolbar button
 function llm_toolkit_generate_single_html( $url ) {
-    set_time_limit( 600 );
-    llm_toolkit_add_status_message( 'success', 'Generate single: starting process' );
-
     if ( empty( $_POST['url'] ) ) {
         llm_toolkit_add_status_message( 'error', 'Error generate single: No URL received' );
         wp_send_json_error( 'No URL received' ); // display error alert in generate single js
