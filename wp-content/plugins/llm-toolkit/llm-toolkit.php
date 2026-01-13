@@ -226,7 +226,9 @@ function llm_toolkit_page() {
                         <p class="description">AI model</p>
                         <select name="llm_toolkit_ai_model" id="llm_toolkit_ai_model">
                             <option value="<?php echo esc_attr( $model ); ?>"><?php echo esc_attr( $model ); ?></option>
+                            <option value="gpt-5.2">gpt-5.2</option>
                             <option value="gpt-5.1">gpt-5.1</option>
+                            <option value="gpt-4.1">gpt-4.1</option>
                         </select>
 
                         <p class="description">Maximum amount of tokens</p>

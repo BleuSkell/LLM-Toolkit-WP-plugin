@@ -35,8 +35,14 @@ function llm_toolkit_openai_call( $prompt ) {
     require_once WP_PLUGIN_DIR . '/llm-toolkit/config/api-models.php';
 
     switch ( $api_model ) {
+        case 'gpt-5.2':
+            $response = llm_toolkit_5_2( $api_key, $api_model, $max_tokens, $prompt );
+            break;
         case 'gpt-5.1':
             $response = llm_toolkit_5_1( $api_key, $api_model, $max_tokens, $prompt );
+            break;
+        case 'gpt-4.1':
+            $response = llm_toolkit_4_1( $api_key, $api_model, $max_tokens, $prompt );
             break;
         default:
             llm_toolkit_add_status_message( 'error', 'OpenAI call: unsuported model: ' . $api_model );

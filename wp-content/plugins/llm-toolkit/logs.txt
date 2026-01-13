@@ -30,3 +30,17 @@
 [12-01-2026 15:54:00 UTC][error] OpenAI call: /data/sites/web/stagingbegenl/www/wp-content/plugins/llm-toolkit/config/api-models.php
 [13-01-2026 11:56:18 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
 [13-01-2026 11:57:29 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:29:29 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:31:24 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:36:07 UTC][success] OpenAI call: using gpt-5.2
+[13-01-2026 12:36:12 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:37:22 UTC][success] OpenAI call: using gpt-5.2
+[13-01-2026 12:37:26 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:38:27 UTC][success] OpenAI call: using gpt-4.1
+[13-01-2026 12:38:33 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:42:45 UTC][success] OpenAI call: using the model gpt-4.1
+[13-01-2026 12:42:45 UTC][success] OpenAI call: using the model gpt-4.1
+[13-01-2026 12:42:46 UTC][success] OpenAI call: using the model gpt-4.1
+[13-01-2026 12:42:47 UTC][success] OpenAI call: using the model gpt-4.1
+[13-01-2026 12:42:47 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[13-01-2026 12:46:51 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
