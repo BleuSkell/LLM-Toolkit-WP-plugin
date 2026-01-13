@@ -1,0 +1,30 @@
+[05-01-2026 13:50:16 UTC][success]  Log test success message
+[05-01-2026 13:50:25 UTC][error]    Log test error message
+[05-01-2026 13:50:32 UTC][cron]     Log test cron message
+[05-01-2026 14:18:03 UTC][cron] Cron started, generating LLM HTML files
+[05-01-2026 14:18:13 UTC][cron] Cron stopped, completing last batch before stopping
+[05-01-2026 14:20:32 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[05-01-2026 15:54:47 UTC][error] Error: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml
+[05-01-2026 15:55:46 UTC][error] Error: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml
+[06-01-2026 08:04:05 UTC][cron] Cron started, generating LLM HTML files
+[06-01-2026 08:04:12 UTC][cron] Cron stopped, completing last batch before stopping
+[08-01-2026 12:05:44 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 12:07:39 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 12:24:23 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 12:37:56 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 12:47:03 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 12:57:56 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[08-01-2026 13:03:41 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[09-01-2026 11:06:49 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[09-01-2026 11:43:04 UTC][error] OpenAI: Incorrect API key provided: zsyrLLRA***********************************GCj1. You can find your API key at https://platform.openai.com/account/api-keys.
+[09-01-2026 11:43:04 UTC][error] Error generate single: Failed to generate LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[09-01-2026 11:46:04 UTC][success] Success generate single: Succesfully generated LLM HTML for https://staging.bege.nl/ and /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[09-01-2026 14:05:11 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[09-01-2026 14:08:35 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten.html
+[09-01-2026 14:10:44 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/fr/product-details/standard-iec-programming-xgt-rack-type-plc-xgi.html
+[09-01-2026 14:12:34 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/2018/08/31/wots-2018.html
+[12-01-2026 14:00:17 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[12-01-2026 15:28:44 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[12-01-2026 15:52:44 UTC][error] OpenAI call: /data/sites/web/stagingbegenl/www/wp-content/pluginsllm-toolkit/config/api-models.php
+[12-01-2026 15:53:32 UTC][error] OpenAI call: /data/sites/web/stagingbegenl/www/wp-content/pluginsllm-toolkit/config/api-models.php
+[12-01-2026 15:54:00 UTC][error] OpenAI call: /data/sites/web/stagingbegenl/www/wp-content/plugins/llm-toolkit/config/api-models.php

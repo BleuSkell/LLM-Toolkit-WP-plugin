@@ -1,0 +1,225 @@
+LLM Toolkit plugin guide
+
+Folders:
+llm-toolkit/
+	assets/
+		css/
+		js/
+	config/
+	includes/
+		helpers/
+
+Main functions folders:
+llm-toolkit/ 	= plugin
+assets/ 	    = where you can store what you need for your plugin's display page
+css/		    = styling
+js/		        = scripts
+config/		    = configuration files
+includes/	    = scripts to be included in the main plugin file
+helpers/	    = helper methods for the admin display pages
+
+Pages:
+main page/settings page
+status logs
+bot logs
+
+Flow:
+┌──────────────────────────────────────────────────────────────┐
+│                          WordPress                           │
+└──────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌──────────────────────────────────────────────────────────────┐
+│                     llm-toolkit.php                          │
+│                  (Plugin Orchestrator)                       │
+│                                                              │
+│  Plugin lifecycle                                            │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ activation_hook   ──► sync_detector(true)              │  │
+│  │ deactivation_hook ──► sync_detector(false)             │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  Admin menu                                                  │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ LLM Toolkit                                            │  │
+│  │ ├─ Settings                                            │  │
+│  │ ├─ Status Logs                                         │  │
+│  │ └─ Bot Logs                                            │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  require_once includes/...                                   │
+│   ├─ cron.php                                                │
+│   ├─ html-generation.php                                     │
+│   ├─ status-logs.php                                         │
+│   ├─ bot-logs.php                                            │
+│   ├─ cron-toggle.php                                         │
+│   └─ get-available-sitemaps.php                              │
+└──────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+             SETTINGS PAGE (BOT CONFIG) — ADMIN JS
+════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│                 settings-page.js (Admin UI)                  │
+│                                                              │
+│  DOMContentLoaded                                            │
+│        │                                                     │
+│        ├─ Read existing bot rows (<table>)                   │
+│        ├─ Maintain JS array: bots[]                          │
+│        │                                                     │
+│        ├─ Add bot                                            │
+│        │    ├─ Update table                                  │
+│        │    └─ Update hidden input (||| separated)           │
+│        │                                                     │
+│        ├─ Remove bot                                         │
+│        │    ├─ Remove row                                    │
+│        │    └─ Update hidden input                           │
+│        │                                                     │
+│        ▼                                                     │
+│  Hidden input → POST → update_option()                       │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌──────────────────────────────────────────────────────────────┐
+│          config-selected-bots.php                            │
+│                                                              │
+│  get_option('llm_toolkit_allowed_bots')                      │
+│        │                                                     │
+│        ▼                                                     │
+│  json_encode()                                               │
+│        │                                                     │
+│        ▼                                                     │
+│  /wp-content/llm-toolkit-selected-bots.json                  │
+└──────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+                 BOT LOGS PAGE — LIVE ADMIN JS
+════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│              bot-logs-page.js (Admin UI)                     │
+│                                                              │
+│  DOMContentLoaded                                            │
+│        │                                                     │
+│        ├─ autoScroll = true                                  │
+│        ├─ scroll listener                                    │
+│        │    └─ disable autoscroll if user scrolls up         │
+│        │                                                     │
+│        ├─ fetch every 3s                                     │
+│        │    └─ GET admin-ajax.php                            │
+│        │          ?action=llm_toolkit_get_bot_logs           │
+│        │                                                     │
+│        ▼                                                     │
+│  Render <li> per log                                         │
+│   ├─ bot_request_logs → special CSS class                    │
+│   └─ default logs                                            │
+│                                                              │
+│  Auto-scroll if enabled                                      │
+└──────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌──────────────────────────────────────────────────────────────┐
+│                includes/helpers/bot-logs.php                 │
+│                                                              │
+│  AJAX: llm_toolkit_get_bot_logs                              │
+│        │                                                     │
+│        ▼                                                     │
+│  wp_options: llm_toolkit_bot_logs                            │
+│   (last 100 entries)                                         │
+└──────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+          STATUS LOGS PAGE — LIVE ADMIN JS + SUMMARY
+════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│            status-logs-page.js (Admin UI)                    │
+│                                                              │
+│  DOMContentLoaded                                            │
+│        │                                                     │
+│        ├─ autoScroll logic                                   │
+│        │                                                     │
+│        ├─ fetch logs every 3s                                │
+│        │    └─ GET admin-ajax.php                            │
+│        │          ?action=llm_toolkit_get_status             │
+│        │                                                     │
+│        ├─ filter out bot_request_logs                        │
+│        │                                                     │
+│        ├─ render logs with badges                            │
+│        │    ├─ Cron     → blue                               │
+│        │    ├─ Success  → green                              │
+│        │    └─ Error    → red                                │
+│        │                                                     │
+│        ├─ fetch summary every 3s                             │
+│        │    └─ GET admin-ajax.php                            │
+│        │          ?action=llm_toolkit_get_summary            │
+│        │                                                     │
+│        ▼                                                     │
+│  Summary text:                                               │
+│   "X of Y pages currently have LLMS HTML"                    │
+└──────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌──────────────────────────────────────────────────────────────┐
+│            includes/helpers/status-logs.php                  │
+│                                                              │
+│  AJAX handlers                                               │
+│   ├─ llm_toolkit_get_status                                  │
+│   │     └─ wp_options: llm_toolkit_status_logs               │
+│   │                                                          │
+│   └─ llm_toolkit_get_summary                                 │
+│         ├─ read_sitemap()                                    │
+│         └─ count /wp-content/llms/*.html                     │
+└──────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+          CRON & HTML GENERATION (UNCHANGED CORE FLOW)
+════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│  cron-toggle.php                                             │
+│   └─ admin toggle → enable/disable cron                      │
+│                                                              │
+│  cron.php                                                    │
+│   ├─ every_5_minutes schedule                                │
+│   ├─ batch lock (transient)                                  │
+│   ├─ sitemap → queue                                         │
+│   ├─ generate_llm_html()                                     │
+│   └─ status logs                                             │
+│                                                              │
+│  html-generation.php                                         │
+│   ├─ DOM cleanup                                             │
+│   ├─ OpenAI API chunks                                       │
+│   └─ write /wp-content/llms/*.html                           │
+└──────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════
+              RUNTIME BOT SERVING (PRE-WORDPRESS)
+════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│                         index.php                            │
+│                                                              │
+│  Detect bot via UA                                           │
+│        │                                                     │
+│        ▼                                                     │
+│  Load llm-toolkit-selected-bots.json                         │
+│        │                                                     │
+│        ▼                                                     │
+│  Match bot?                                                  │
+│        │                                                     │
+│        ├─ NO → normal WordPress                              │
+│        │                                                     │
+│        ▼                                                     │
+│  Resolve slug → /llms/{slug}.html                            │
+│        │                                                     │
+│        ├─ exists → readfile() + exit                         │
+│        └─ missing → WordPress fallback                       │
+└──────────────────────────────────────────────────────────────┘
