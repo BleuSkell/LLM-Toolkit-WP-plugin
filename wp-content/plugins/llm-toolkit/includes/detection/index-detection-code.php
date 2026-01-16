@@ -8,6 +8,20 @@ if ( ! defined( 'MY_PLUGIN_LOADED' ) ) {
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
     if ( ! empty( $user_agent ) ) {
+        $bot_regex = "/(?i)\b(claude|bot|crawler|crawl|spider|slurp|fetch|search|monitor|scraper|python|perl|php|java|wget|curl|httpclient|libwww|bingpreview|mediapartners-google|applebot|yahoo|yandex|baiduspider|duckduckbot|semrush|ahrefs|mj12bot|rogerbot|dotbot|gigabot|seznambot|petalbot|sogou|exabot|facebookexternalhit|twitterbot|linkedinbot|pinterest|embedly|quora link preview|discordbot|telegrambot)\b/";
+        $ip_address = ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) ? $_SERVER[ 'REMOTE_ADDR' ] : $_SERVER['HTTP_X_FORWARDED_FOR'];
+        $page_request_url = $_SERVER[ 'REQUEST_URI' ];
+
+        $bot_log_file = $root_dir . '/wp-content/plugins/llm-toolkit/bot-logs.txt';
+
+        if ( preg_match( $bot_regex, $user_agent ) ) {
+            $time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+            $time = $time->format( 'd-m-Y H:i:s' ) . ' UTC';
+            $line = "[$time] $user_agent made a request to $page_request_url. At IP: $ip_address" . PHP_EOL; // format log message
+
+            file_put_contents( $bot_log_file, $line, FILE_APPEND | LOCK_EX );
+        }
+
         $selected_bots = [];
 
         // get the selected bots to detect

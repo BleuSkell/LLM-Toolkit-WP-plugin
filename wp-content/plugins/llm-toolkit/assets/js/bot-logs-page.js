@@ -28,12 +28,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 list.innerHTML = "";
 
                 messages.forEach(msg => {
-                    const li = document.createElement("li");
+                    if (msg.user_agent !== 'PHP') {
+                        const li = document.createElement("li");
 
-                    li.className = 'llm-log-request';
+                        li.className = 'llm-log-request';
 
-                    li.textContent = `[${msg.time}] ${msg.user_agent}`;
-                    list.appendChild(li);
+                        li.textContent = `[${msg.time}] ${msg.user_agent} → ${msg.request} (IP: ${msg.ip})`;
+                        list.appendChild(li);
+                    }
                 });
 
                 if (autoScroll == true) {
@@ -42,6 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    setInterval(fetchStatus, 3000);
+    setInterval(fetchStatus, 10000);
     fetchStatus();
 });

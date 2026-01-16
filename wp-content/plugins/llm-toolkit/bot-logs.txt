@@ -1,0 +1,37 @@
+[16-01-2026 10:46:03 UTC] Mozilla/5.0 (compatible; Claude-Web/1.0; +https://www.anthropic.com) made a request to /. At IP: 149.143.17.154
+[16-01-2026 10:46:03 UTC] Mozilla/5.0 (compatible; Claude-Web/1.0; +https://www.anthropic.com) made a request to /favicon.ico. At IP: 149.143.17.154
+[16-01-2026 10:46:14 UTC] Mozilla/5.0 (compatible; Claude-Web/1.0; +https://www.anthropic.com) made a request to /. At IP: 149.143.17.154
+[16-01-2026 10:46:14 UTC] Mozilla/5.0 (compatible; Claude-Web/1.0; +https://www.anthropic.com) made a request to /favicon.ico. At IP: 149.143.17.154
+[16-01-2026 10:47:13 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /highlights/allround-applicable-solution-2/. At IP: 2a03:2880:f814:19::
+[16-01-2026 10:50:22 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/product-details/servo-drives-all-in-one-ethercat-fully-closed-loop-l7nhf/. At IP: 2a03:2880:f814:9::
+[16-01-2026 10:50:26 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/product-details/nema-stainless-steel-motors-nsnema/. At IP: 2a03:2880:f814:31::
+[16-01-2026 10:55:05 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /de/highlights/iec-nema-standard-sizes-2/. At IP: 57.141.20.8
+[16-01-2026 10:55:16 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/product-details/plastic-gear-racks-tmp_grs/. At IP: 2a03:2880:f814:36::
+[16-01-2026 10:55:42 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /nb/product-details/levellers-p/. At IP: 57.141.20.40
+[16-01-2026 11:06:17 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /de/product-details/ansi-iso-rollenkette-rk/. At IP: 2a03:2880:f814:26::
+[16-01-2026 11:07:36 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/mini-coaxiale-motorreductoren-m/. At IP: 2a03:2880:f814:2b::
+[16-01-2026 11:07:57 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/product-details/stainless-steel-bevel-gear-units-hdv/. At IP: 2a03:2880:f814:15::
+[16-01-2026 11:11:58 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /nb/product-details/high-performance-frequency-inverters-s100/. At IP: 2a03:2880:f814:31::
+[16-01-2026 11:13:36 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/wormwiel-motorreductoren-rvm/. At IP: 2a03:2880:f814:2e::
+[16-01-2026 11:15:06 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /es/product-details/ie4-stainless-steel-motors-bgx/. At IP: 2a03:2880:f814:10::
+[16-01-2026 11:15:29 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/1-fase-inductiemotoren-5azc/. At IP: 2a03:2880:f814:39::
+[16-01-2026 11:17:52 UTC] Mozilla/5.0 (compatible;PetalBot;+https://webmaster.petalsearch.com/site/petalbot) made a request to /robots.txt. At IP: 114.119.141.139
+[16-01-2026 11:18:02 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /nb/product-details/helical-bevel-variable-speed-gear-motors-am-m/. At IP: 2a03:2880:f814:36::
+[16-01-2026 11:18:52 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/high-quality-products/electric-motors/3-phase-ac-motors/. At IP: 2a03:2880:f814:15::
+[16-01-2026 11:19:49 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/product-details/plastic-spur-gears-tmp_sgs/. At IP: 2a03:2880:f814:16::
+[16-01-2026 11:20:41 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /es/product-details/compact-frequency-inverters-g100/. At IP: 2a03:2880:f814:2e::
+[16-01-2026 11:20:55 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /es/product-details/planetary-bevel-gear-units-bpce/. At IP: 2a03:2880:f814:19::
+[16-01-2026 11:25:23 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/elektrische-trilmotoren-vv/. At IP: 2a03:2880:f814:19::
+[16-01-2026 11:29:34 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/hoogwaardige-geforceerde-koeling-svb/. At IP: 2a03:2880:f814:19::
+[16-01-2026 11:30:02 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /de/product-details/kunststoff-zahnr%c3%a4der-tmp_sgs/. At IP: 2a03:2880:f814:39::
+[16-01-2026 11:33:20 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /fr/product-details/platewheels-pl/. At IP: 2a03:2880:f814:a::
+[16-01-2026 11:35:37 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /de/footer/. At IP: 2a03:2880:f814:2a::
+[16-01-2026 11:35:48 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /es/product-details/torque-limiters-t-c/. At IP: 2a03:2880:f814:2e::
+[16-01-2026 11:37:54 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /fr/product-details/servo-drives-all-in-one-ethercat-fully-closed-loop-l7nhf/. At IP: 2a03:2880:f814:28::
+[16-01-2026 11:38:08 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /fr/product-details/ie4-stainless-steel-motors-bgx/. At IP: 2a03:2880:f814:2c::
+[16-01-2026 11:40:05 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /fr/product-details/micro-frequency-inverters-m100/. At IP: 2a03:2880:f814:2e::
+[16-01-2026 11:40:19 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[16-01-2026 11:40:20 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[16-01-2026 11:40:43 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /de/2019/08/15/bege-messen-im-herbst-2019/. At IP: 2a03:2880:f814:33::
+[16-01-2026 11:41:24 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-category/elektromotoren/standard-ruttelmotoren/. At IP: 57.141.20.43
+[16-01-2026 11:42:32 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /integrale-aandrijfsystemen/. At IP: 2a03:2880:f814:19::
