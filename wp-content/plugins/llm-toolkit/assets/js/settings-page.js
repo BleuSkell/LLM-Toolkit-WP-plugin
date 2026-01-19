@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const promptBlocks = document.querySelectorAll('.prompt-block');
     const promptCheckboxes = document.querySelectorAll(".llm-prompt-checkbox");
 
+    const promptLabels = document.querySelectorAll(".prompt-label");
+
     // Load existing bots
     const bots = Array.from(botBody.querySelectorAll("tr"))
         .map(tr => tr.querySelector("td").textContent.trim());
@@ -82,6 +84,19 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 promptInput.value = '';
                 promptInput.style.display = 'none';
+            }
+        });
+    });
+
+    promptLabels.forEach(label => {
+        const targetId = label.dataset.target;
+        const promptInput = document.getElementById(targetId);
+
+        label.addEventListener("click", function() {
+            if (promptInput.style.display === "block") {
+                console.log("has display block!");
+            } else {
+                console.log("doesnt have display block!");
             }
         });
     });

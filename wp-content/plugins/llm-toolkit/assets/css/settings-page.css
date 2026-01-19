@@ -1,17 +1,47 @@
 .llm-flex {
     display: flex;
-    gap: 30px;
-    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.card-flex {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.card-container {
+    width: 100%;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 120%;
+    width: 100%;
+    transition: 0.2s ease;
 }
 
 .llm-card {
+    position: relative;
+    cursor: grab;
     background: #fff;
     padding: 25px;
+    margin: 10px;
     border: 1px solid #ccd0d4;
     border-radius: 6px;
-    width: 48%;
     box-shadow: 0 1px 1px rgba(0,0,0,0.04);
 }
+
+.hovered {
+    background: rgba(191, 191, 191, 0.5);
+    transition: 0.2s ease;
+}
+
+
 
 .llm-card .title {
     margin-top: 0;
