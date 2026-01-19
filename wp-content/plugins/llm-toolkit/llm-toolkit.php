@@ -323,7 +323,10 @@ function llm_toolkit_page() {
                                             data-sitemap="<?php echo esc_attr( $sitemap ); ?>"
                                             style="<?php echo $is_enabled ? '' : 'display:none;'; ?>"
                                     >
-                                        <label class="llm-label"><?php echo esc_html( basename( $sitemap ) ); ?></label>
+                                        <label class="llm-label prompt-label" data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>">
+                                            <?php echo esc_html( basename( $sitemap ) ); ?>
+                                            <span class="chevron"></span>
+                                        </label>
                                         <textarea
                                                 name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
                                                 id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
