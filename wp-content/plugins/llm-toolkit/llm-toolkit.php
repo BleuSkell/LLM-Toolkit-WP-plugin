@@ -286,6 +286,7 @@ function llm_toolkit_page() {
                                 data-prompt="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
                             >
                                 <?php echo esc_html( basename( $sitemap ) ); ?>
+                                <span class="chevron"></span>
                             </label>
                             <textarea
                                     name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
