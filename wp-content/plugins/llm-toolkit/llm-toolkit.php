@@ -36,7 +36,7 @@ register_deactivation_hook( __FILE__, function() {
 function llm_toolkit_styling_callback( $hook ) {
     if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_style( 'llm-toolkit-page', plugin_dir_url( __FILE__ ) . 'assets/css/settings-page.css' );
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_style( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/css/status-logs-page.css' );
-    if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_style( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/css/bot-logs-page.css' );
+    if ( $hook === 'llm-toolkit_page_bot-requests' ) wp_enqueue_style( 'llm-toolkit-bot-requests-page', plugin_dir_url( __FILE__ ) . 'assets/css/bot-requests-page.css' );
 }
 add_action('admin_enqueue_scripts', 'llm_toolkit_styling_callback');
 
@@ -56,7 +56,7 @@ function llm_toolkit_scripts_callback( $hook ) {
         wp_localize_script( 'llm-toolkit-page', 'scriptParams', $script_params );
     }
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
-    if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_script( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-logs-page.js' );
+    if ( $hook === 'llm-toolkit_page_bot-requests' ) wp_enqueue_script( 'llm-toolkit-bot-requests-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-requests-page.js' );
 }
 add_action( 'admin_enqueue_scripts', 'llm_toolkit_scripts_callback' );
 
@@ -110,11 +110,11 @@ function llm_toolkit_menu() {
     );
     add_submenu_page(
         'llm-toolkit',
-        'Bot Logs',
-        'Bot Logs',
+        'Bot Requests',
+        'Bot Requests',
         'manage_options',
-        'bot-logs',
-        'bot_logs_page'
+        'bot-requests',
+        'bot_requests_page'
     );
 }
 add_action( 'admin_menu', 'llm_toolkit_menu' );
@@ -419,14 +419,14 @@ function status_logs_page() {
     <?php
 }
 
-function bot_logs_page() {
+function bot_requests_page() {
     ?>
 
     <div class="wrap">
-        <h1>LLM Toolkit – Bot Logs</h1>
+        <h1>LLM Toolkit – Bot Requests</h1>
 
         <div class="llm-admin-card">
-            <h3>Bot Logs</h3>
+            <h3>Bot Requests</h3>
 
             <div class="llm-requests-box" id="llm-bot-requests-container">
                 <ul id="llm-bot-requests"></ul>
@@ -446,7 +446,7 @@ require_once __DIR__ . '/includes/helpers/encryption.php';
 
 require_once __DIR__ . '/includes/helpers/status-logs.php';
 
-require_once __DIR__ . '/includes/helpers/bot-logs.php';
+require_once __DIR__ . '/includes/helpers/bot-requests.php';
 
 require_once __DIR__ . '/includes/helpers/cron-toggle.php';
 

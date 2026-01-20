@@ -8183,3 +8183,6 @@
 [20-01-2026 09:04:02 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
 [20-01-2026 09:04:03 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
 [20-01-2026 09:13:20 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /stroter-bege-aandrijvingen/. At IP: 2a03:2880:f814:15::
+[20-01-2026 09:16:36 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /en/highlights/high-quality-components/. At IP: 2a03:2880:f814:2e::
+[20-01-2026 09:20:19 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /product-details/inwendig-vertande-tandwielen-ig/. At IP: 2a03:2880:f814:23::
+[20-01-2026 09:21:37 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
