@@ -1,6 +1,6 @@
 <?php
 function llm_toolkit_get_bot_requests( $limit ) {
-    $log_file = WP_PLUGIN_DIR . '/llm-toolkit/bot-logs.txt';
+    $log_file = WP_PLUGIN_DIR . '/llm-toolkit/bot-requests.txt';
     if ( ! file_exists( $log_file ) ) return [];
 
     $lines = array_slice(
@@ -26,7 +26,7 @@ function llm_toolkit_get_bot_requests( $limit ) {
 }
 
 // ajax callback
-add_action( 'wp_ajax_llm_toolkit_get_bot_logs', function() {
-    $bots = llm_toolkit_get_bot_requests( 200 );
+add_action( 'wp_ajax_llm_toolkit_get_bot_requests', function() {
+    $bots = llm_toolkit_get_bot_requests( 300 );
     wp_send_json( $bots );
 });

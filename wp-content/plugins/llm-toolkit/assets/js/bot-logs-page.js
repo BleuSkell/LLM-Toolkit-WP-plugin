@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const list = document.getElementById("llm-bot-logs");
-    const listContainer = document.getElementById("llm-bot-logs-container");
+    const list = document.getElementById("llm-bot-requests");
+    const listContainer = document.getElementById("llm-bot-requests-container");
 
     let autoScroll = true;
 
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function fetchStatus() {
-        fetch(ajaxurl + '?action=llm_toolkit_get_bot_logs')
+        fetch(ajaxurl + '?action=llm_toolkit_get_bot_requests')
             .then(response => response.json())
             .then(messages => {
                 list.innerHTML = "";

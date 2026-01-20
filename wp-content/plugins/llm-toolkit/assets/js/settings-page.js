@@ -115,8 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 promptInput.style.display = "block";
                 chevronSpan.innerHTML = chevronDown;
             }
-        } else {
-            chevronSpan.innerHTML = chevronUp;
         }
 
         label.addEventListener("click", function() {

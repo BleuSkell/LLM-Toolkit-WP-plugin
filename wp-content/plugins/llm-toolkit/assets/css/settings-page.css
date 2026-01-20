@@ -1,6 +1,7 @@
 .llm-flex {
-    display: flex;
+    display: grid;
     gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
     align-items: flex-start;
 }
 
@@ -9,7 +10,6 @@
     padding: 25px;
     border: 1px solid #ccd0d4;
     border-radius: 6px;
-    width: 48%;
     box-shadow: 0 1px 1px rgba(0,0,0,0.04);
 }
 
@@ -48,4 +48,9 @@
 
 .llm-table td {
     vertical-align: middle;
+}
+@media screen and (max-width:767px) {
+    .llm-flex {
+        grid-template-columns: repeat(1, 1fr);
+    }
 }

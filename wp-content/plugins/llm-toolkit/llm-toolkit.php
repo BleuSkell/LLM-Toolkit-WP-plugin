@@ -303,7 +303,7 @@ function llm_toolkit_page() {
                                        data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
                                     <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
                                 />
-                                <p class="description">Create a custom prompt for this specific sitemap.</p>
+                                <p class="description">Create a custom prompt for this specific sitemap (Optional).</p>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -333,7 +333,11 @@ function llm_toolkit_page() {
                                 <tr class="bot-row">
                                     <td><?php echo esc_html( $bot ); ?></td>
                                     <td>
-                                        <button type="button" class="button button-small button-link-delete remove-bot">
+                                        <button
+                                            type="button"
+                                            class="button button-small button-link-delete remove-bot"
+                                            style="display: flex; align-items: center;"
+                                        >
                                             <span class="dashicons dashicons-trash"></span> Remove
                                         </button>
                                     </td>
@@ -424,16 +428,8 @@ function bot_logs_page() {
         <div class="llm-admin-card">
             <h3>Bot Logs</h3>
 
-            <div class="llm-logs-box" id="llm-bot-logs-container">
-                <ul id="llm-bot-logs">
-                    <?php
-                    $logs = llm_toolkit_get_bot_requests_from_access_log( 200 );
-
-                    foreach ( $logs as $log ) {
-                        echo "<li class='llm-log-request'>[" . esc_html( $log[ 'time' ] ) . "] " . esc_html( $log[ 'user_agent' ] ) ."</li>";
-                    }
-                    ?>
-                </ul>
+            <div class="llm-requests-box" id="llm-bot-requests-container">
+                <ul id="llm-bot-requests"></ul>
             </div>
         </div>
     </div>

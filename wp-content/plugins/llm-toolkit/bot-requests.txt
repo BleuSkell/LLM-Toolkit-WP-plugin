@@ -8133,3 +8133,53 @@
 [20-01-2026 08:42:49 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
 [20-01-2026 08:43:16 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
 [20-01-2026 08:43:17 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:25 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:26 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:33 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:34 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:55 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:45:56 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:46:02 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:46:03 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:46:11 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:46:11 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:49:30 UTC] Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) made a request to /robots.txt. At IP: 66.249.76.8
+[20-01-2026 08:50:34 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:50:35 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:50:53 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:50:54 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:50:58 UTC] Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) made a request to /page-sitemap.xml. At IP: 66.249.72.134
+[20-01-2026 08:51:11 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:51:12 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:51:35 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:51:37 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:51:53 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:51:54 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:53:35 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:53:36 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:55:02 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:55:03 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:26 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:27 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:41 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:42 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:53 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /producten/motorreductoren/coaxiale-motorreductoren/. At IP: 2a03:2880:f814:1e::
+[20-01-2026 08:56:56 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:56:57 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:57:04 UTC] Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot) made a request to /robots.txt. At IP: 17.246.15.196
+[20-01-2026 08:57:05 UTC] Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot) made a request to /product-category/motion-control-servo-2/page/4/. At IP: 17.246.15.196
+[20-01-2026 08:58:11 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:58:12 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:58:59 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:59:00 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:59:10 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:59:11 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 08:59:22 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 08:59:23 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 09:00:32 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 09:00:33 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 09:03:18 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 09:03:19 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 09:04:02 UTC] PHP made a request to /sitemap.xml. At IP: 176.62.173.242
+[20-01-2026 09:04:03 UTC] PHP made a request to /sitemap_index.xml. At IP: 176.62.173.242
+[20-01-2026 09:13:20 UTC] meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler) made a request to /stroter-bege-aandrijvingen/. At IP: 2a03:2880:f814:15::

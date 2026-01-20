@@ -12,7 +12,7 @@ if ( ! defined( 'MY_PLUGIN_LOADED' ) ) {
         $ip_address = ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) ? $_SERVER[ 'REMOTE_ADDR' ] : $_SERVER['HTTP_X_FORWARDED_FOR'];
         $page_request_url = $_SERVER[ 'REQUEST_URI' ];
 
-        $bot_log_file = $root_dir . '/wp-content/plugins/llm-toolkit/bot-logs.txt';
+        $bot_log_file = $root_dir . '/wp-content/plugins/llm-toolkit/bot-requests.txt';
 
         if ( preg_match( $bot_regex, $user_agent ) ) {
             $time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
