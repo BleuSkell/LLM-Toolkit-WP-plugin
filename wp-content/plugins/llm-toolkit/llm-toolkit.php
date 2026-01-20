@@ -57,7 +57,6 @@ function llm_toolkit_scripts_callback( $hook ) {
     }
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
     if ( $hook === 'llm-toolkit_page_bot-logs' ) wp_enqueue_script( 'llm-toolkit-bot-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-logs-page.js' );
-    if ( $hook === 'toplevel_page_llm-toolkit' ) wp_enqueue_script( 'llm-toolkit-draggable-cards', plugin_dir_url( __FILE__ ) . 'assets/js/draggable-cards.js' );
 }
 add_action( 'admin_enqueue_scripts', 'llm_toolkit_scripts_callback' );
 
@@ -133,12 +132,13 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // bot selection
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_default_prompt' );
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_default_prompt' ); // default prompt for all sitemaps
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompts', [
         'sanitize_callback' => function($input) {
             if ( is_array( $input ) ) {
                 return array_map( 'sanitize_textarea_field', $input );
             }
+            // fallback
             return [];
         }
     ]); // custom prompt per sitemap
@@ -147,6 +147,7 @@ add_action( 'admin_init', function() {
             if ( is_array( $input ) ) {
                 return array_map( 'sanitize_text_field', $input );
             }
+            // fallback
             return [];
         }
     ]); // checkboxes for the custom prompts
@@ -164,9 +165,9 @@ add_action( 'admin_init', function() {
         'sanitize_callback' => function( $input ) {
             return llm_toolkit_encrypt( $input );
         }
-    ]);
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model' );
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens' );
+    ]); // openai api key
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model' ); // ai model
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens' ); // max tokens
 });
 
 function llm_toolkit_page() {
@@ -207,207 +208,141 @@ function llm_toolkit_page() {
             <?php do_settings_sections( 'llm_toolkit_settings' ); ?>
 
             <div class="llm-flex">
-                <div class="card-flex">
 
-                    <div class="card-container">
-                        <div class="card-list">
-                            <div class="llm-card" draggable="true">
-                                <div style="display: flex;">
-                                    <svg version="1.1" id="Draggable--Streamline-Carbon"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" viewBox="0 0 16 16"
-                                         xml:space="preserve" enable-background="new 0 0 32 32" height="16" width="16">
-                                          <desc>
-                                              Draggable Streamline Icon: https://streamlinehq.com
-                                          </desc>
-                                        <title>draggable</title>
-                                        <path d="M5 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path id="_Transparent_Rectangle_" d="M0 0h16v16H0Z" fill="none"
-                                              stroke-width="0.5"></path>
-                                    </svg>
-                                    <h2 class="title">General Settings</h2>
-                                </div>
+                <!-- left settings card -->
+                <div class="llm-card">
+                    <h2 class="title">General Settings</h2>
 
-                                <div class="llm-field">
-                                    <label class="llm-label">Enable plugin</label>
-                                    <input type="checkbox" name="llm_toolkit_enabled" value="1" <?php checked( $enabled, '1' ); ?> />
-                                </div>
-
-                                <div class="llm-field">
-                                    <label class="llm-label">Enable cron job</label>
-                                    <input type="checkbox" name="llm_toolkit_cron_enabled" value="1" <?php checked( $cron_enabled, '1' ); ?> />
-                                    <p class="description">Runs the LLM HTML generator periodically.</p>
-                                </div>
-
-                                <div class="llm-field">
-                                    <label class="llm-label">AI configuration</label>
-                                    <p class="description">API key</p>
-                                    <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" required />
-
-                                    <p class="description">AI model</p>
-                                    <select name="llm_toolkit_ai_model" id="llm_toolkit_ai_model">
-                                        <option value="<?php echo esc_attr( $model ); ?>"><?php echo esc_attr( $model ); ?></option>
-                                        <option value="gpt-5.2">gpt-5.2</option>
-                                        <option value="gpt-5.1">gpt-5.1</option>
-                                        <option value="gpt-4.1">gpt-4.1</option>
-                                    </select>
-
-                                    <p class="description">Maximum amount of tokens</p>
-                                    <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" required />
-                                </div>
-
-                                <div class="llm-field">
-                                    <label class="llm-label">Select which sitemaps to read</label>
-
-                                    <?php if ( ! empty( $available_sitemaps ) ) : ?>
-                                        <?php foreach ( $available_sitemaps as $sitemap ) : ?>
-                                            <?php $checked = in_array( $sitemap, (array) $selected_sitemaps ) ? 'checked' : ''; ?>
-                                            <label style="display: block; margin-bottom: 6px;">
-                                                <input type="checkbox" name="llm_toolkit_selected_sitemaps[]" value="<?php echo esc_attr( $sitemap ); ?>" <?php echo $checked; ?> />
-                                                <?php echo esc_html( basename( $sitemap ) ); ?>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <?php llm_toolkit_add_status_message( 'error', 'No sitemap_index.xml found or child sitemaps of sitemap_index.xml detected' ); ?>
-                                    <?php endif; ?>
-                                    <p class="description">This includes the selected sitemaps into the cron.</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="llm-field">
+                        <label class="llm-label">Enable plugin</label>
+                        <input type="checkbox" name="llm_toolkit_enabled" value="1" <?php checked( $enabled, '1' ); ?> />
                     </div>
 
-                    <div class="card-container">
-                        <div class="card-list">
-                            <div class="llm-card" draggable="true">
-                                <div style="display: flex;">
-                                    <svg version="1.1" id="Draggable--Streamline-Carbon"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" viewBox="0 0 16 16"
-                                         xml:space="preserve" enable-background="new 0 0 32 32" height="16" width="16">
-                                          <desc>
-                                              Draggable Streamline Icon: https://streamlinehq.com
-                                          </desc>
-                                        <title>draggable</title>
-                                        <path d="M5 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path id="_Transparent_Rectangle_" d="M0 0h16v16H0Z" fill="none"
-                                              stroke-width="0.5"></path>
-                                    </svg>
-                                    <h2 class="title">Prompts</h2>
-                                </div>
-
-                                <div class="llm-field" >
-                                    <label class="llm-label">Default prompt</label>
-                                    <textarea name="llm_toolkit_default_prompt" rows="8" ><?php echo esc_attr( $default_prompt ); ?></textarea>
-                                    <p class="description">Customize the default prompt used for all the sitemaps.</p>
-                                </div>
-
-                                <?php foreach ( $available_sitemaps as $sitemap ) : ?>
-                                    <?php
-                                    $sitemap_key    = md5( $sitemap );
-                                    $is_custom      = ! empty( $prompt_checkboxes[ $sitemap_key ] );
-                                    $is_enabled     = in_array( $sitemap, $selected_sitemaps );
-                                    $prompt_value   = $prompts[ $sitemap_key ] ?? '';
-                                    ?>
-                                    <div
-                                            class="llm-field prompt-block"
-                                            data-sitemap="<?php echo esc_attr( $sitemap ); ?>"
-                                            style="<?php echo $is_enabled ? '' : 'display:none;'; ?>"
-                                    >
-                                        <label class="llm-label prompt-label" data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>">
-                                            <?php echo esc_html( basename( $sitemap ) ); ?>
-                                            <span class="chevron"></span>
-                                        </label>
-                                        <textarea
-                                                name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
-                                                id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
-                                                rows="8"
-                                                placeholder="Enter instructions for the LLM generator"
-                                            <?php echo $is_custom ? '' : 'style="display: none;"'; ?>
-                                        ><?php echo esc_textarea( $prompt_value ); ?></textarea>
-
-                                        <div>
-                                            <input type="checkbox"
-                                                   class="llm-prompt-checkbox"
-                                                   name="llm_toolkit_prompt_checkboxes[<?php echo esc_attr( $sitemap_key ); ?>]"
-                                                   data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
-                                                <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
-                                            />
-                                            <p class="description">Create a custom prompt for this specific sitemap.</p>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
+                    <div class="llm-field">
+                        <label class="llm-label">Enable cron job</label>
+                        <input type="checkbox" name="llm_toolkit_cron_enabled" value="1" <?php checked( $cron_enabled, '1' ); ?> />
+                        <p class="description">Runs the LLM HTML generator periodically.</p>
                     </div>
 
-                    <div class="card-container">
-                        <div class="card-list">
-                            <div class="llm-card" draggable="true">
-                                <div style="display: flex;">
-                                    <svg version="1.1" id="Draggable--Streamline-Carbon"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" viewBox="0 0 16 16"
-                                         xml:space="preserve" enable-background="new 0 0 32 32" height="16" width="16">
-                                          <desc>
-                                              Draggable Streamline Icon: https://streamlinehq.com
-                                          </desc>
-                                        <title>draggable</title>
-                                        <path d="M5 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 3h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 7h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M5 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path d="M9 11h2v2h-2Z" fill="#000000" stroke-width="0.5"></path>
-                                        <path id="_Transparent_Rectangle_" d="M0 0h16v16H0Z" fill="none"
-                                              stroke-width="0.5"></path>
-                                    </svg>
-                                    <h2 class="title">Bots to Detect</h2>
-                                </div>
+                    <div class="llm-field">
+                        <label class="llm-label">AI configuration</label>
+                        <p class="description">API key</p>
+                        <input type="text" name="llm_toolkit_api_key" id="llm_toolkit_api_key" placeholder="API key" value="<?php echo esc_attr( $api_key ); ?>" required />
 
-                                <div class="llm-bot-add">
-                                    <input type="text" id="bot-input" placeholder="Bot name or keyword">
-                                    <button type="button" id="add-bot" class="button button-secondary">Add</button>
-                                </div>
+                        <p class="description">AI model</p>
+                        <select name="llm_toolkit_ai_model" id="llm_toolkit_ai_model">
+                            <option value="<?php echo esc_attr( $model ); ?>"><?php echo esc_attr( $model ); ?></option>
+                            <option value="gpt-5.2">gpt-5.2</option>
+                            <option value="gpt-5.1">gpt-5.1</option>
+                            <option value="gpt-4.1">gpt-4.1</option>
+                        </select>
 
-                                <p class="description" style="margin-bottom: 15px;">Used to detect bots and serve optimized HTML.</p>
+                        <p class="description">Maximum amount of tokens</p>
+                        <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" required />
+                    </div>
 
-                                <table class="widefat fixed striped llm-table" id="bot-list-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Bot name</th>
-                                        <th style="width:120px;">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="llm-bot-body">
-                                    <?php if ( ! empty( $allowed_bots ) ) : ?>
-                                        <?php foreach ( $allowed_bots as $bot ) : ?>
-                                            <tr class="bot-row">
-                                                <td><?php echo esc_html( $bot ); ?></td>
-                                                <td>
-                                                    <button type="button" class="button button-small button-link-delete remove-bot">
-                                                        <span class="dashicons dashicons-trash"></span> Remove
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                    </tbody>
-                                </table>
+                    <div class="llm-field">
+                        <label class="llm-label">Select which sitemaps to read</label>
 
-                                <input type="hidden" name="llm_toolkit_allowed_bots" id="bots-hidden">
+                        <?php if ( ! empty( $available_sitemaps ) ) : ?>
+                            <?php foreach ( $available_sitemaps as $sitemap ) : ?>
+                                <?php $checked = in_array( $sitemap, (array) $selected_sitemaps ) ? 'checked' : ''; ?>
+                                <label style="display: block; margin-bottom: 6px;">
+                                    <input type="checkbox" name="llm_toolkit_selected_sitemaps[]" value="<?php echo esc_attr( $sitemap ); ?>" <?php echo $checked; ?> />
+                                    <?php echo esc_html( basename( $sitemap ) ); ?>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <?php llm_toolkit_add_status_message( 'error', 'No sitemap_index.xml found or child sitemaps of sitemap_index.xml detected' ); ?>
+                        <?php endif; ?>
+                        <p class="description">This includes the selected sitemaps into the cron.</p>
+                    </div>
+                </div>
+
+                <!-- middle settings card -->
+                <div class="llm-card">
+                    <h2 class="title">Prompts</h2>
+
+                    <div class="llm-field" >
+                        <label class="llm-label">Default prompt</label>
+                        <textarea name="llm_toolkit_default_prompt" rows="8" ><?php echo esc_attr( $default_prompt ); ?></textarea>
+                        <p class="description">Customize the default prompt used for all the sitemaps.</p>
+                    </div>
+
+                    <?php foreach ( $available_sitemaps as $sitemap ) : ?>
+                        <?php
+                        $sitemap_key    = md5( $sitemap );
+                        $is_custom      = ! empty( $prompt_checkboxes[ $sitemap_key ] );
+                        $is_enabled     = in_array( $sitemap, $selected_sitemaps );
+                        $prompt_value   = $prompts[ $sitemap_key ] ?? '';
+                        ?>
+                        <div
+                                class="llm-field prompt-block"
+                                data-sitemap="<?php echo esc_attr( $sitemap ); ?>"
+                                style="<?php echo $is_enabled ? '' : 'display:none;'; ?>"
+                        >
+                            <label
+                                class="llm-label prompt-label"
+                                data-prompt="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                            >
+                                <?php echo esc_html( basename( $sitemap ) ); ?>
+                            </label>
+                            <textarea
+                                    name="llm_toolkit_prompts[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                    id="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                    rows="8"
+                                    placeholder="Enter instructions for the LLM generator"
+                                <?php echo $is_custom ? '' : 'style="display: none;"'; ?>
+                            ><?php echo esc_textarea( $prompt_value ); ?></textarea>
+
+                            <div>
+                                <input type="checkbox"
+                                       class="llm-prompt-checkbox"
+                                       name="llm_toolkit_prompt_checkboxes[<?php echo esc_attr( $sitemap_key ); ?>]"
+                                       data-target="prompt-<?php echo esc_attr( $sitemap_key ); ?>"
+                                    <?php checked( ! empty( $prompt_checkboxes[ $sitemap_key ] ) ); ?>
+                                />
+                                <p class="description">Create a custom prompt for this specific sitemap.</p>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- right settings card -->
+                <div class="llm-card">
+                    <h2 class="title">Bots to Detect</h2>
+
+                    <div class="llm-bot-add">
+                        <input type="text" id="bot-input" placeholder="Bot name or keyword">
+                        <button type="button" id="add-bot" class="button button-secondary">Add</button>
                     </div>
+
+                    <p class="description" style="margin-bottom: 15px;">Used to detect bots and serve optimized HTML.</p>
+
+                    <table class="widefat fixed striped llm-table" id="bot-list-table">
+                        <thead>
+                        <tr>
+                            <th>Bot name</th>
+                            <th style="width:120px;">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="llm-bot-body">
+                        <?php if ( ! empty( $allowed_bots ) ) : ?>
+                            <?php foreach ( $allowed_bots as $bot ) : ?>
+                                <tr class="bot-row">
+                                    <td><?php echo esc_html( $bot ); ?></td>
+                                    <td>
+                                        <button type="button" class="button button-small button-link-delete remove-bot">
+                                            <span class="dashicons dashicons-trash"></span> Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+
+                    <input type="hidden" name="llm_toolkit_allowed_bots" id="bots-hidden">
                 </div>
             </div>
 
