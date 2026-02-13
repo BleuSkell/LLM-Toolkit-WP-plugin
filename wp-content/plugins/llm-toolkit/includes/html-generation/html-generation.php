@@ -19,11 +19,11 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
     }
 
     // convert to HTML-ENTITIES to process special chars correctly
-    $html = mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' );
+    $html = mb_convert_encoding( $html, 'UTF-8', 'auto' );
 
     // load the html in a DOM structure
     $dom = new DOMDocument();
-    @$dom->loadHTML( $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+    @$dom->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
 
     // remove scripts from dom html
     $scripts = $dom->getElementsByTagName( 'script' );
@@ -69,7 +69,7 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
     }
 
     // encode the result into UTF-8
-    $optimized_html = mb_convert_encoding( $result, 'HTML-ENTITIES', 'UTF8' );
+    $optimized_html = mb_convert_encoding( $result, 'UTF8', 'auto' );
 
     // check if openai returned content
     if ( ! empty( $optimized_html ) ) {
@@ -79,7 +79,7 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
         }
 
         // put optimized content in the file and convert to UTF-8
-        file_put_contents( $file_path, mb_convert_encoding( $optimized_html, 'UTF-8', 'HTML-ENTITIES' ) );
+        file_put_contents( $file_path, $optimized_html );
         return true;
     }
 
