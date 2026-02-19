@@ -2,10 +2,24 @@
 // helper method to read the sitemap (url based for the pages sitemap)
 function read_sitemap( $sitemap_url ) {
     $urls = [];
-    $xml = @simplexml_load_file( $sitemap_url ); // return the object of the SimpleXMLElement class from the sitemap
+
+    $response = wp_remote_get( $sitemap_url, [
+        'timeout' => 30,
+        'headers' => [
+            'Authorization' => 'Basic ' . base64_encode('ontwikkel:Staging123')
+        ]
+    ]);
+
+    if (is_wp_error($response)) {
+        llm_toolkit_add_status_message('error', 'Generation helper sitemap fetch failed: ' . $response->get_error_message());
+        return [];
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $xml = simplexml_load_string($body);
 
     // debug error log, prevent silent failure
-    if (!$xml) {
+    if ( ! $xml ) {
         llm_toolkit_add_status_message( 'error', "Error: Unable to parse XML response from $sitemap_url" );
         return [];
     }
