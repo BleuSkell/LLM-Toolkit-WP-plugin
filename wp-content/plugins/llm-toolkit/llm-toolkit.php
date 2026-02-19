@@ -200,9 +200,6 @@ function llm_toolkit_page() {
     // syncs bot detection code with admin settings when saved
     update_option( 'llm_toolkit_enabled', $enabled ); // save in wp_options
     llm_toolkit_sync_detector( (bool) $enabled ); // set llm_toolkit_enabled to true/false and tells the method what to do
-
-//    var_dump($available_sitemaps);
-    var_dump($selected_sitemaps);
     ?>
 
     <div class="wrap">
