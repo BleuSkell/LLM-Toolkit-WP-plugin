@@ -8,7 +8,7 @@ function read_sitemap( $sitemap_url ) {
     $response = wp_remote_get( $sitemap_url, [
         'timeout' => 30,
         'headers' => [
-            'Authorization' => 'Basic ' . base64_encode( "$site_user:$site_pass" )
+            'Authorization' => 'Basic ' . base64_encode( $site_user . ':' . llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) ) )
         ]
     ]);
 

@@ -174,6 +174,17 @@ add_action( 'admin_init', function() {
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_user' ); // website username for htaccess protections
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_pass', [
         'sanitize_callback' => function( $input ) {
+            // if user credentials turned off empty password
+            if ( empty( get_option( 'llm_toolkit_enable_site_user_credentials' ) ) ) {
+                return '';
+            }
+
+            // if credentials turned on but input left empty use old password
+            if ( empty( $input ) ) {
+                return get_option( 'llm_toolkit_site_pass', '' );
+            }
+
+            // set new password
             return llm_toolkit_encrypt( $input );
         }
     ]); // website password for htaccess protections
@@ -204,7 +215,8 @@ function llm_toolkit_page() {
     // get website login credentials
     $enable_site_user   = get_option( 'llm_toolkit_enable_site_user_credentials', '0' );
     $site_user          = get_option( 'llm_toolkit_site_user', '' );
-    $site_pass          = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass', '' ) );
+    $site_pass          = get_option( 'llm_toolkit_site_pass', '' );
+    $placeholder        = ! empty( $site_pass ) ? "(Password set)" : "Enter a password";
 
     // load configs
     require_once __DIR__ . '/config/config-selected-bots.php';
@@ -246,7 +258,7 @@ function llm_toolkit_page() {
                             <p class="description">Username</p>
                             <input type="text" name="llm_toolkit_site_user" value="<?php echo esc_attr( $site_user ); ?>" />
                             <p class="description">Password</p>
-                            <input type="password" name="llm_toolkit_site_pass" value="<?php echo esc_attr( $site_pass ); ?>" />
+                            <input type="password" name="llm_toolkit_site_pass" value="" placeholder="<?php echo esc_attr( $placeholder ); ?>" />
                         </div>
                     </div>
 
