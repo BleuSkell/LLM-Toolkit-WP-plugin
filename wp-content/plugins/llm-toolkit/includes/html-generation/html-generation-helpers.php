@@ -1,11 +1,16 @@
 <?php
 // helper method to read the sitemap (url based for the pages sitemap)
 function read_sitemap( $sitemap_url ) {
-    $site_user = get_option( 'llm_toolkit_site_username' );
-    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_password' ) );
+    $site_user = get_option( 'llm_toolkit_site_user' );
+    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) );
     $urls = [];
 
-    $response = wp_remote_get( $sitemap_url, [ 'timeout' => 30 ]);
+    $response = wp_remote_get( $sitemap_url, [
+        'timeout' => 30,
+        'headers' => [
+            'Authorization' => 'Basic ' . base64_encode( "$site_user:$site_pass" )
+        ]
+    ]);
 
     if (is_wp_error($response)) {
         llm_toolkit_add_status_message('error', 'Generation helper sitemap fetch failed: ' . $response->get_error_message());

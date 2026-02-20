@@ -1,11 +1,16 @@
 <?php
 
 function llm_toolkit_get_available_sitemaps() {
-    $site_user = get_option( 'llm_toolkit_site_username' );
-    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_password' ) );
+    $site_user = get_option( 'llm_toolkit_site_user' );
+    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) );
     $sitemap_index = home_url('/sitemap.xml');
 
-    $response = wp_remote_get($sitemap_index, [ 'timeout' => 30 ]);
+    $response = wp_remote_get($sitemap_index, [
+        'timeout' => 30,
+        'headers' => [
+            'Authorization' => 'Basic ' . base64_encode( "$site_user:$site_pass" ),
+        ]
+    ]);
 
     if (is_wp_error($response)) {
         llm_toolkit_add_status_message('error', 'Sitemap fetch failed: ' . $response->get_error_message());

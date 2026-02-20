@@ -170,6 +170,13 @@ add_action( 'admin_init', function() {
     ]); // openai api key
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model' ); // ai model
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens' ); // max tokens
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_enable_site_user_credentials' ); // enable/disable website user credentials for htaccess protections
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_user' ); // website username for htaccess protections
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_pass', [
+        'sanitize_callback' => function( $input ) {
+            return llm_toolkit_encrypt( $input );
+        }
+    ]); // website password for htaccess protections
 });
 
 function llm_toolkit_page() {
@@ -193,6 +200,11 @@ function llm_toolkit_page() {
     // get sitemaps
     $available_sitemaps = llm_toolkit_get_available_sitemaps();
     $selected_sitemaps  = $sitemaps;
+
+    // get website login credentials
+    $enable_site_user   = get_option( 'llm_toolkit_enable_site_user_credentials', '0' );
+    $site_user          = get_option( 'llm_toolkit_site_user', '' );
+    $site_pass          = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass', '' ) );
 
     // load configs
     require_once __DIR__ . '/config/config-selected-bots.php';
@@ -224,6 +236,18 @@ function llm_toolkit_page() {
                         <label class="llm-label">Enable cron job</label>
                         <input type="checkbox" name="llm_toolkit_cron_enabled" value="1" <?php checked( $cron_enabled, '1' ); ?> />
                         <p class="description">Runs the LLM HTML generator periodically.</p>
+                    </div>
+
+                    <div class="llm-field">
+                        <label class="llm-label">Website user configuration</label>
+                        <p class="description">Enable user credentials</p>
+                        <input type="checkbox" name="llm_toolkit_enable_site_user_credentials" id="enable_credentials" value="1" <?php checked( $enable_site_user, '1' ); ?> />
+                        <div class="site_credentials" style="<?php echo ( $enable_site_user === '1' ) ? 'display:flex; flex-direction:column;' : 'display:none;'; ?>">
+                            <p class="description">Username</p>
+                            <input type="text" name="llm_toolkit_site_user" value="<?php echo esc_attr( $site_user ); ?>" />
+                            <p class="description">Password</p>
+                            <input type="password" name="llm_toolkit_site_pass" value="<?php echo esc_attr( $site_pass ); ?>" />
+                        </div>
                     </div>
 
                     <div class="llm-field">

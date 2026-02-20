@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
   <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
 </svg>`;
 
+    const credentialsCheckbox = document.getElementById("enable_credentials");
+    const credentialWrapper = document.querySelector(".site_credentials");
+
     // Load existing bots
     const bots = Array.from(botBody.querySelectorAll("tr"))
         .map(tr => tr.querySelector("td").textContent.trim());
@@ -132,5 +135,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+    });
+
+    credentialsCheckbox.addEventListener("change", function() {
+        if (this.checked) {
+            credentialWrapper.style.display = "flex";
+            credentialWrapper.style.flexDirection = "column";
+        } else {
+            credentialWrapper.querySelectorAll("input").forEach(i => i.value = "");
+            credentialWrapper.style.display = "none";
+        }
     });
 });

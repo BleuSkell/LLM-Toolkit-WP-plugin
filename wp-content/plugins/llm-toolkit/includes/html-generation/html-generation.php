@@ -3,8 +3,16 @@ require_once __DIR__ . '/html-generation-helpers.php';
 
 // method to generate a llm optimized html file through OpenAI
 function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
+    $site_user = get_option( 'llm_toolkit_site_user' );
+    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) );
+
     // fetch the url and check for errors
-    $response = wp_remote_get( $url, [ 'timeout'   => 30 ]);
+    $response = wp_remote_get( $url, [
+        'timeout'   => 30,
+        'headers'   => [
+            'Authorization' => 'Basic ' . base64_encode( "$site_user:$site_pass" )
+        ]
+    ]);
     if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) != 200 ) {
         llm_toolkit_add_status_message( 'error', 'Error generate llm html: Failed to fetch the url' );
         return false;
