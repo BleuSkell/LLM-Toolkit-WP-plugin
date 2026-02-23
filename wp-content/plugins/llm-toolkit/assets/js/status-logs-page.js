@@ -63,7 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(ajaxurl + '?action=llm_toolkit_get_summary')
             .then(response => response.json())
             .then(data => {
-                summaryElement.innerHTML = `<strong>${data.generated_files}</strong> of <strong>${data.total_pages}</strong> pages currently have LLMS HTML.`;
+                let summaryHtml = '';
+                data.forEach(item => {
+                    summaryHtml += `<strong>${item.sitemap_name} —</strong> <strong>${item.generated_files}</strong> of <strong>${item.total_files}</strong> files currently have LLMS HTML.<br/>`;
+                });
+                summaryElement.innerHTML = summaryHtml;
             })
             .catch(err => console.log('LLM summary fetching error: ', err));
     }

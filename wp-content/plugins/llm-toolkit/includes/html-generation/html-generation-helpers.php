@@ -2,7 +2,6 @@
 // helper method to read the sitemap (url based for the pages sitemap)
 function read_sitemap( $sitemap_url ) {
     $site_user = get_option( 'llm_toolkit_site_user' );
-    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) );
     $urls = [];
 
     $response = wp_remote_get( $sitemap_url, [
@@ -22,7 +21,7 @@ function read_sitemap( $sitemap_url ) {
 
     // debug error log, prevent silent failure
     if ( ! $xml ) {
-        llm_toolkit_add_status_message( 'error', "Error: Unable to parse XML response from $sitemap_url" );
+        llm_toolkit_add_status_message( 'error', "Error read sitemap: Unable to parse XML response from $sitemap_url" );
         return [];
     }
 

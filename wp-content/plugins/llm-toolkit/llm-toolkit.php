@@ -406,9 +406,7 @@ function status_logs_page() {
         <div class="llm-status-card">
 
             <h2 class="llm-subtitle">Generation Summary</h2>
-            <p class="llm-summary" id="llm-summary-text">
-                <strong><?php echo esc_attr( $generated_files ); ?></strong> of <strong><?php echo esc_attr( $total_pages ); ?></strong> pages currently have LLMS HTML.
-            </p>
+            <p class="llm-summary" id="llm-summary-text"></p>
 
             <h2 class="llm-subtitle" style="margin-top:25px;">Live Activity Log</h2>
 
