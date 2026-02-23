@@ -11,28 +11,36 @@ function read_sitemap( $sitemap_url ) {
         ]
     ]);
 
-    if (is_wp_error($response)) {
-        llm_toolkit_add_status_message('error', 'Generation helper sitemap fetch failed: ' . $response->get_error_message());
+    if ( is_wp_error( $response ) ) {
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: ' . $response->get_error_message() );
         return [];
     }
 
-    $body = wp_remote_retrieve_body($response);
-    $xml = simplexml_load_string($body);
+    $body = wp_remote_retrieve_body( $response );
+    if ( ! $body ) {
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: empty body' );
+        return $urls;
+    }
 
-    // debug error log, prevent silent failure
+    $xml = @simplexml_load_string( $body );
     if ( ! $xml ) {
         llm_toolkit_add_status_message( 'error', "Error read sitemap: Unable to parse XML response from $sitemap_url" );
         return [];
     }
 
+    $namespaces = $xml->getNamespaces( true );
+
     // check if the xml object and its urls are set
-    if ( $xml && isset( $xml->url ) ) {
-
-        // loop through all xml urls
+    if ( isset( $xml->url ) ) {
         foreach ( $xml->url as $url ) {
-
-            // take loc url from the current node url, convert it into a string, append it into $urls[]
             $urls[] = (string) $url->loc;
+        }
+    } else if ( isset( $xml->sitemap ) ) {
+        foreach ( $xml->sitemap as $sitemap ) {
+            if ( isset( $sitemap->loc ) ) {
+                $child_urls = read_sitemap( (string) $sitemap->loc );
+                $urls = array_merge( $urls, $child_urls );
+            }
         }
     }
 
