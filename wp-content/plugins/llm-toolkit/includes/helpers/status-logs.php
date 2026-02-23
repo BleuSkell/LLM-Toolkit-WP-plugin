@@ -64,68 +64,35 @@ add_action( 'admin_post_llm_toolkit_clear_status', function() {
 // live page count (X pages out of X have LLM HTML)
 add_action('wp_ajax_llm_toolkit_get_summary', 'llm_toolkit_get_summary');
 function llm_toolkit_get_summary() {
-    $selected_sitemaps  = get_option( 'llm_toolkit_selected_sitemaps', [] );
-    $sitemap_result     = [];
+    $selected_sitemaps = get_option( 'llm_toolkit_selected_sitemaps', [] );
+    $results = [];
 
     foreach ( $selected_sitemaps as $sitemap ) {
-        $pattern        = '/(' . preg_quote(home_url() . "/", '/') . '|-sitemap\.xml)/';
-        $sitemap_name   = preg_replace( $pattern, '', $sitemap );
+        $pattern = '/(' . preg_quote( home_url() . "/", '/' ) . '|-sitemap\.xml)/';
+        $sitemap_name = preg_replace( $pattern, '', $sitemap );
 
-        $file_urls      = read_sitemap( $sitemap );
-        $total_files    = count( $file_urls );
+        $page_urls = read_sitemap( $sitemap );
+        $total_urls = count( $page_urls );
 
-        $llms_dir        = WP_CONTENT_DIR . '/llms/';
-        $generated_files = 0;
-        if ( is_dir( $llms_dir ) ) {
-            // create new recursive iterator for all files
-            $rii = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator( $llms_dir, RecursiveDirectoryIterator::SKIP_DOTS )
-            );
-
-            $llm_files = [];
-            foreach ( $rii as $file ) {
-                if ( $file->isFile() ) {
-                    // save filenames in array
-                    $llm_files[] = $file->getFilename();
-                }
-            }
-
-            foreach ( $file_urls as $url ) {
-                $slug = basename( parse_url( $url, PHP_URL_PATH ) );
-
-                foreach ( $llm_files as $file ) {
-                    if ( strpos( $file, $slug ) !== false ) {
-                        $generated_files++;
-                        break;
-                    }
-                }
-            }
-        }
-
-        $sitemap_result[] = [
-            'sitemap_name'      => $sitemap_name,
-            'generated_files'   => $generated_files,
-            'total_files'       => $total_files,
+        $results[] = [
+            'sitemap_name' => $sitemap_name,
+            'total_urls'   => $total_urls,
         ];
     }
 
-    wp_send_json($sitemap_result);
-}
+    wp_send_json($results);
 
-//        $llms_dir        = WP_CONTENT_DIR . '/llms/';
-//        $generated_files = 0;
+//    $pages_sitemap = home_url() . '/page-sitemap.xml';
+//    $page_urls     = read_sitemap($pages_sitemap);
+//    $total_pages   = count($page_urls);
 //
-//        if (is_dir( $llms_dir )) {
-//            $generated = array_diff( scandir( $llms_dir ), ['.', '..'] );
+//    $llms_dir        = WP_CONTENT_DIR . '/llms/';
+//    $generated_files = is_dir($llms_dir)
+//        ? count(array_diff(scandir($llms_dir), ['.', '..']))
+//        : 0;
 //
-//            foreach ( $file_urls as $url ) {
-//                $slug = basename( parse_url( $url, PHP_URL_PATH ) );
-//
-//                foreach ( $generated as $file ) {
-//                    if ( strpos( $file, $slug ) !== false ) {
-//                        $generated_files++;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
+//    wp_send_json([
+//        'generated_files'   => $generated_files,
+//        'total_pages'       => $total_pages,
+//    ]);
+}
