@@ -61,38 +61,61 @@ add_action( 'admin_post_llm_toolkit_clear_status', function() {
     exit;
 });
 
-// live page count (X pages out of X have LLM HTML)
+// live generated files count
 add_action('wp_ajax_llm_toolkit_get_summary', 'llm_toolkit_get_summary');
 function llm_toolkit_get_summary() {
+    // get selected sitemaps
     $selected_sitemaps = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $results = [];
 
-    foreach ( $selected_sitemaps as $sitemap ) {
-        $pattern = '/(' . preg_quote( home_url() . "/", '/' ) . '|-sitemap\.xml)/';
-        $sitemap_name = preg_replace( $pattern, '', $sitemap );
+    foreach( $selected_sitemaps as $sitemap ) {
+        // return only sitemap name
+        $pattern        = '/(' . preg_quote( home_url() . "/", '/' ) . '|-sitemap\.xml)/';
+        $sitemap_name   = preg_replace( $pattern, '', $sitemap );
 
-        $page_urls = read_sitemap( $sitemap );
+        // read and count total urls in sitemap
+        $page_urls  = read_sitemap( $sitemap );
         $total_urls = count( $page_urls );
 
+        $llms_dir           = WP_CONTENT_DIR . '/llms/';
+        $generated_files    = 0;
+
+        if ( is_dir( $llms_dir ) ) {
+            // fetch all files in llms_dir recursively (as if it's 1 list)
+            $rii = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator( $llms_dir, RecursiveDirectoryIterator::SKIP_DOTS )
+            );
+
+            $llm_files = [];
+            foreach ( $rii as $file ) {
+                if ( $file->isFile() ) {
+                    // save filenames from recursive fetch in array
+                    $llm_files[] = $file->getFilename();
+                }
+            }
+
+            foreach ( $page_urls as $url ) {
+                // get basename from url path
+                $slug = basename( parse_url( $url, PHP_URL_PATH ) );
+
+                // loop through all generated files
+                foreach( $llm_files as $file ) {
+                    // check if file contains slug so generated_files matches the actual generated files per sitemap
+                    if ( strpos( $file, $slug ) !== false ) {
+                        // matched? count +1
+                        $generated_files++;
+                        break;
+                    }
+                }
+            }
+        }
+
         $results[] = [
-            'sitemap_name' => $sitemap_name,
-            'total_urls'   => $total_urls,
+            'sitemap_name'      => $sitemap_name,
+            'generated_files'   => $generated_files,
+            'total_urls'        => $total_urls,
         ];
     }
 
-    wp_send_json($results);
-
-//    $pages_sitemap = home_url() . '/page-sitemap.xml';
-//    $page_urls     = read_sitemap($pages_sitemap);
-//    $total_pages   = count($page_urls);
-//
-//    $llms_dir        = WP_CONTENT_DIR . '/llms/';
-//    $generated_files = is_dir($llms_dir)
-//        ? count(array_diff(scandir($llms_dir), ['.', '..']))
-//        : 0;
-//
-//    wp_send_json([
-//        'generated_files'   => $generated_files,
-//        'total_pages'       => $total_pages,
-//    ]);
+    wp_send_json( $results );
 }

@@ -17,30 +17,16 @@ function read_sitemap( $sitemap_url ) {
     }
 
     $body = wp_remote_retrieve_body( $response );
-    if ( ! $body ) {
-        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: empty body' );
-        return $urls;
-    }
+    $xml = simplexml_load_string( $body );
 
-    $xml = @simplexml_load_string( $body );
     if ( ! $xml ) {
-        llm_toolkit_add_status_message( 'error', "Error read sitemap: Unable to parse XML response from $sitemap_url" );
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: Unable to parse XML response from ' . $sitemap_url . '. ' . $body );
         return [];
     }
 
-    $namespaces = $xml->getNamespaces( true );
-
-    // check if the xml object and its urls are set
-    if ( isset( $xml->url ) ) {
+    if ( $xml && isset( $xml->url ) ) {
         foreach ( $xml->url as $url ) {
             $urls[] = (string) $url->loc;
-        }
-    } else if ( isset( $xml->sitemap ) ) {
-        foreach ( $xml->sitemap as $sitemap ) {
-            if ( isset( $sitemap->loc ) ) {
-                $child_urls = read_sitemap( (string) $sitemap->loc );
-                $urls = array_merge( $urls, $child_urls );
-            }
         }
     }
 

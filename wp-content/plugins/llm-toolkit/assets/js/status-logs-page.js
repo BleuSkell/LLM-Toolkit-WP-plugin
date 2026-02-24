@@ -66,20 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 let html = '';
 
                 data.forEach(item => {
-                    html += `sitemap: <strong>${item.sitemap_name}</strong>, total urls: <strong>${item.total_urls}</strong><br/>`;
+                    html += `Sitemap: <strong>${item.sitemap_name}</strong> | generated files: <strong>${item.generated_files}</strong> | total urls: <strong>${item.total_urls}</strong><br/>`;
                 });
+
                 summaryElement.innerHTML = html;
             })
             .catch(err => console.log('LLM summary fetching error: ', err));
     }
-    // function fetchSummary() {
-    //     fetch(ajaxurl + '?action=llm_toolkit_get_summary')
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             summaryElement.innerHTML = `<strong>${data.generated_files}</strong> of <strong>${data.total_pages}</strong> pages currently have LLMS HTML.`;
-    //         })
-    //         .catch(err => console.log('LLM summary fetching error: ', err));
-    // }
 
     setInterval(fetchSummary, 3000);
     fetchSummary();
