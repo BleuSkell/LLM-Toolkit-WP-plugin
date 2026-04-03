@@ -49,10 +49,20 @@ if ( ! defined( 'MY_PLUGIN_LOADED' ) ) {
 
                 // if uri is empty set it to index
                 $llm_html_file = $root_dir . '/wp-content/llms/' . ( $uri ?: 'index' ) . '.html';
+                $llm_file_route = '/wp-content/llms/' . ( $uri ?: 'index' ) . '.html';
 
                 // display llm html file
                 if ( file_exists( $llm_html_file ) ) {
                     header( 'Content-type: text/html; charset=utf-8' );
+
+                    // add custom header to exclude it from the caching
+                    header( 'Exclude-From-Cache: llms-optimized-page' );
+
+                    // prevent caching
+                    header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
+                    header( 'Pragma: no-cache' );
+                    header( 'Surrogate-Control: no-store' );
+
                     ob_clean();
                     readfile( $llm_html_file );
                     exit;
