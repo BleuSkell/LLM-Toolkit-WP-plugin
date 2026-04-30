@@ -13,6 +13,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 /*
+ *  disable lazy loading when this plugin fetches a page (X-LLM-Fetch header present)
+ *  this ensures all image src attributes contain real URLs instead of JS placeholders
+ */
+if ( ! empty( $_SERVER['HTTP_X_LLM_FETCH'] ) ) {
+    // disable WordPress core lazy loading
+    add_filter( 'wp_lazy_loading_enabled', '__return_false' );
+    // disable WP Rocket lazy load
+    add_filter( 'do_rocket_lazyload', '__return_false' );
+    // disable BJ Lazy Load
+    add_filter( 'bj_lazy_load_run_filter', '__return_false' );
+    // disable Smush lazy load
+    add_filter( 'wp_smush_should_skip_lazy_load', '__return_true' );
+}
+
+
+
+/*
  *  bot detection
  */
 require_once __DIR__ . '/includes/detection/bot-detection.php';

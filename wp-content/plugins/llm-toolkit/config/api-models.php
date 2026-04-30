@@ -25,7 +25,7 @@ function llm_toolkit_5_2( $api_key, $api_model, $max_tokens, $prompt ) {
                 'Authorization' => 'Bearer ' . $api_key,
             ],
             'body'      => wp_json_encode( $body ),
-            'timeout'   => 120,
+            'timeout'   => 300,
         ]
     );
 }
@@ -56,7 +56,7 @@ function llm_toolkit_5_1( $api_key, $api_model, $max_tokens, $prompt ) {
                 'Authorization' => 'Bearer ' . $api_key,
             ],
             'body'      => wp_json_encode( $body ),
-            'timeout'   => 120,
+            'timeout'   => 300,
         ]
     );
 }
@@ -86,7 +86,7 @@ function llm_toolkit_4_1( $api_key, $api_model, $max_tokens, $prompt ) {
                 'Authorization' => 'Bearer ' . $api_key,
             ],
             'body'      => wp_json_encode( $body ),
-            'timeout'   => 120,
+            'timeout'   => 300,
         ]
     );
 }

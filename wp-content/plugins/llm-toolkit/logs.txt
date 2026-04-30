@@ -1,0 +1,116 @@
+[12-03-2026 15:42:09 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/en/high-quality-products/encoders-sensors/magnetic-encoders.html
+[15-04-2026 07:15:13 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[15-04-2026 07:16:18 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[15-04-2026 07:33:27 UTC][error] OpenAI call: wordpress error retrieved: cURL error 28: Operation timed out after 120001 milliseconds with 0 bytes received
+[15-04-2026 07:33:27 UTC][error] Generate HTML: OpenAI call failed
+[15-04-2026 07:33:27 UTC][error] Error generate single: Failed to generate LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten.html
+[15-04-2026 07:34:28 UTC][error] OpenAI call: wordpress error retrieved: cURL error 28: Operation timed out after 120001 milliseconds with 0 bytes received
+[15-04-2026 07:34:28 UTC][error] Generate HTML: OpenAI call failed
+[15-04-2026 07:34:28 UTC][error] Error generate single: Failed to generate LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten.html
+[15-04-2026 07:40:56 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten.html
+[15-04-2026 07:41:51 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten.html
+[15-04-2026 07:43:07 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/branches.html
+[15-04-2026 07:51:33 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/bedrijfsgegevens.html
+[15-04-2026 08:45:45 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/bedrijfsgegevens.html
+[15-04-2026 08:57:17 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[15-04-2026 09:00:07 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[15-04-2026 09:04:41 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[15-04-2026 09:07:38 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[15-04-2026 09:17:49 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[15-04-2026 09:26:56 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/engineering-aandrijftechniek.html
+[17-04-2026 11:02:35 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[17-04-2026 11:03:10 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[17-04-2026 11:03:58 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[17-04-2026 11:05:29 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/index.html
+[22-04-2026 15:00:49 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/producten/motorreductoren.html
+[22-04-2026 15:05:51 UTC][success] Success generate single: Succesfully generated LLM HTML for /data/sites/web/stagingbegenl/www/wp-content/llms/aandrijftechniek.html
+[30-04-2026 14:39:05 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:42:02 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:42:57 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:43:52 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:44:42 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:45:36 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:48:52 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:49:50 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+
+[30-04-2026 14:51:06 UTC][error] Generation helper sitemap fetch failed: Unable to parse XML response from https://staging.bege.nl/page-sitemap.xml. <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>503 Service Unavailable</title>
+</head><body>
+<h1>Service Unavailable</h1>
+<p>The server is temporarily unable to service your
+request due to maintenance downtime or capacity
+problems. Please try again later.</p>
+</body></html>
+

@@ -42,9 +42,13 @@ function llm_generate_batch_callback() {
         return; // cron disabled, skip generation logic
     }
 
+    if ( get_transient( 'llm_toolkit_sitemap_cooldown' ) ) {
+        llm_toolkit_add_status_message( 'error', 'LLM Toolkit cron: cron skipped, sitemap cooldown active.' );
+    }
+
     // check for batch lock
     if ( get_transient( 'llm_generate_batch_lock' ) ) {
-        error_log( 'LLM Toolkit: Cron skipped because another batch was already running' );
+        llm_toolkit_add_status_message( 'error', 'LLM Toolkit: Cron skipped because another batch was already running' );
         return;
     }
     set_transient( 'llm_generate_batch_lock', true, 460 ); // lock for 5 minutes

@@ -55,8 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    // refresh every 3 seconds
-    setInterval(fetchStatus, 3000);
+    // refresh every 30 seconds
+    setInterval(fetchStatus, 30000);
     fetchStatus();
 
     function fetchSummary() {
@@ -74,6 +74,5 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.log('LLM summary fetching error: ', err));
     }
 
-    setInterval(fetchSummary, 3000);
     fetchSummary();
 });
