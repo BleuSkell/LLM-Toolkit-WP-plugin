@@ -76,7 +76,7 @@ function read_sitemap( $sitemap_url ) {
 
     // reset failure counter and set cache for 30 mins
     delete_transient( 'llm_toolkit_sitemap_failures' );
-    set_transient( $cache_key, $urls, 30000 );
+    set_transient( $cache_key, $urls, 30 * MINUTE_IN_SECONDS );
 
     return $urls;
 }
@@ -87,11 +87,11 @@ function llm_toolkit_register_sitemap_failure() {
     $failures++;
 
     // keep failure counter for 1 hour
-    set_transient( 'llm_toolkit_sitemap_failures', $failures, 60 * 60 );
+    set_transient( 'llm_toolkit_sitemap_failures', $failures, HOUR_IN_SECONDS );
 
     if ( $failures >= 3 ) {
         // cooldown for 30 mins after first trip, capped at 2 hours
-        $cooldown = min( 30 * 60 * ( $failures - 2 ), 2 * 60 * 60 );
+        $cooldown = min( 30 * 60 * ( $failures - 2 ), 2 * HOUR_IN_SECONDS );
         set_transient( 'llm_toolkit_sitemap_failures_cooldown', true, $cooldown );
 
         llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch warning: Too many failures. Cooldown set for ' . gmdate( 'H:i:s', $cooldown ) . ' after ' . $failures . 'failures.' );
