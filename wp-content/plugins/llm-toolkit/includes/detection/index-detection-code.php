@@ -7,10 +7,15 @@ if ( ! defined( 'MY_PLUGIN_LOADED' ) ) {
     // get user-agent
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-    if ( ! empty( $user_agent ) ) {
-        $bot_regex = "/(?i)\b(claude|bot|crawler|crawl|spider|slurp|fetch|search|monitor|scraper|python|perl|php|java|wget|curl|httpclient|libwww|bingpreview|mediapartners-google|applebot|yahoo|yandex|baiduspider|duckduckbot|semrush|ahrefs|mj12bot|rogerbot|dotbot|gigabot|seznambot|petalbot|sogou|exabot|facebookexternalhit|twitterbot|linkedinbot|pinterest|embedly|quora link preview|discordbot|telegrambot)\b/";
-        $ip_address = ! empty( $_SERVER[ 'REMOTE_ADDR' ] ) ? $_SERVER[ 'REMOTE_ADDR' ] : $_SERVER['HTTP_X_FORWARDED_FOR'];
-        $page_request_url = $_SERVER[ 'REQUEST_URI' ];
+    // skip internal fetches
+    $is_internal_fetch = ! empty( $_SERVER[ 'HTTP_X_LLM_FETCH' ] );
+
+    if ( ! empty( $user_agent ) && ! $is_internal_fetch ) {
+        $bot_regex = "/\b(claude|gptbot|chatgpt|openai|anthropic|perplexitybot|googlebot|bingbot|bingpreview|applebot|yahoo!? slurp|yandexbot|baiduspider|duckduckbot|semrushbot|ahrefsbot|mj12bot|rogerbot|dotbot|gigabot|seznambot|petalbot|sogou|exabot|facebookexternalhit|twitterbot|linkedinbot|pinterest|embedly|quora link preview|discordbot|telegrambot|mediapartners-google|wget|curl|python-requests|libwww-perl|httpclient)\b/i";
+        $ip_address = $_SERVER[ 'REMOTE_ADDR' ]
+            ?? $_SERVER[ 'HTTP_X_FORWARDED_FOR' ]
+            ?? 'unknown';
+        $page_request_url = $_SERVER[ 'REQUEST_URI' ] ?? '';
 
         $bot_log_file = $root_dir . '/wp-content/plugins/llm-toolkit/bot-requests.txt';
 

@@ -12,29 +12,6 @@ add_filter( 'cron_schedules', function( $schedules ) {
     return $schedules;
 });
 
-// register cron job on plugin activation (activates on the wp hook set in the add_action load plugin)
-// __FILE__: return full path and name of the executed PHP file
-register_activation_hook( __FILE__, function () {
-
-    // plan cron when admin toggle is enabled
-    if ( get_option( 'llm_toolkit_cron_enabled', false ) == true ) {
-        if ( ! wp_next_scheduled( 'llm_generate_batch' ) ) {
-            wp_schedule_event( time() + 60, 'every_5_minutes', 'llm_generate_batch' );
-        }
-
-        llm_toolkit_add_status_message( 'cron', 'Cron started on ' . current_time( 'Y-m-d H:i:s' ) . ' generating LLM HTML files' );
-    }
-});
-
-// remove cron job on plugin deactivation
-register_deactivation_hook( __FILE__, function () {
-    $timestamp = wp_next_scheduled( 'llm_generate_batch' );
-    if ( $timestamp ) {
-        wp_unschedule_event( $timestamp, 'llm_generate_batch' );
-        llm_toolkit_add_status_message( 'cron', 'Cron stopped on ' . current_time( 'Y-m-d H:i:s' ) . ' completing last batch before stopping' );
-    }
-});
-
 // cron callback (runs every 5 minutes)
 add_action( 'llm_generate_batch', 'llm_generate_batch_callback' );
 function llm_generate_batch_callback() {
@@ -44,7 +21,7 @@ function llm_generate_batch_callback() {
 
     // check for sitemap cooldown
     if ( get_transient( 'llm_toolkit_sitemap_cooldown' ) ) {
-        llm_toolkit_add_status_message( 'error', 'Cron error: Cron skipped, sitemap cooldown active.' );
+        llm_toolkit_add_status_message( 'cron', 'Cron warning: Cron skipped, sitemap cooldown active.' );
         return;
     }
 
@@ -60,6 +37,8 @@ function llm_generate_batch_callback() {
     if ( $data ) {
         $remaining_pages = $data[ 'queue' ];
         $url_to_sitemap  = $data[ 'mapping' ];
+
+        llm_toolkit_add_status_message( 'cron', 'Cron success: Batch processing resumed: ' . count( $remaining_pages ) . ' pages remaining' );
     } else {
         $remaining_pages = null;
     }
@@ -111,8 +90,7 @@ function llm_generate_batch_callback() {
         // build the queue with only pages that still need a llm optimized html
         foreach ( $urls as $url ) {
             $uri = wp_parse_url( $url, PHP_URL_PATH );
-            $clean = trim( $uri, '/' );
-            $clean = $clean ?: 'index';
+            $clean = trim( $uri, '/' ) ?: 'index';
 
             $file_path = WP_CONTENT_DIR . '/llms/' . $clean . '.html';
 

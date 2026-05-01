@@ -27,6 +27,10 @@ function llm_toolkit_get_bot_requests( $limit ) {
 
 // ajax callback
 add_action( 'wp_ajax_llm_toolkit_get_bot_requests', function() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized', 403 );
+    }
+
     $bots = llm_toolkit_get_bot_requests( 300 );
     wp_send_json( $bots );
 });

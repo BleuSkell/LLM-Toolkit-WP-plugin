@@ -37,11 +37,28 @@ require_once __DIR__ . '/includes/detection/bot-detection.php';
 // add bot detection on plugin activation
 register_activation_hook( __FILE__, function() {
     llm_toolkit_sync_detector( true ); // inject detector if plugin enabled
+    llm_toolkit_write_selected_bots_file();
+
+    // plan cron when admin toggle is enabled
+    if ( get_option( 'llm_toolkit_cron_enabled', '0' ) === '1' ) {
+        if ( ! wp_next_scheduled( 'llm_generate_batch' ) ) {
+            wp_schedule_event( time() + 60, 'every_5_minutes', 'llm_generate_batch' );
+        }
+
+        llm_toolkit_add_status_message( 'cron', 'Cron started on ' . current_time( 'Y-m-d H:i:s' ) . ' generating LLM HTML files' );
+    }
 });
 
 // remove bot detection on plugin deactivation
 register_deactivation_hook( __FILE__, function() {
     llm_toolkit_sync_detector( false ); // remove detector if plugin disabled
+
+    // unschedule cron
+    $timestamp = wp_next_scheduled( 'llm_generate_batch' );
+    if ( $timestamp ) {
+        wp_unschedule_event( $timestamp, 'llm_generate_batch' );
+        llm_toolkit_add_status_message( 'cron', 'Cron stopped on ' . current_time( 'Y-m-d H:i:s' ) . ' completing last batch before stopping' );
+    }
 });
 
 
@@ -138,20 +155,21 @@ add_action( 'admin_menu', 'llm_toolkit_menu' );
 
 // register plugin settings
 add_action( 'admin_init', function() {
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_enabled' ); // plugin turn on/off
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_cron_enabled' ); // cron turn on/off
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_enabled', [ 'sanitize_callback' => 'absint' ] ); // plugin turn on/off
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_cron_enabled', [ 'sanitize_callback' => 'absint' ] ); // cron turn on/off
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_allowed_bots', [
         'sanitize_callback' => function($input) {
             if ( is_string( $input ) && str_contains( $input, '|||' ) ) {
                 return array_filter( array_map( 'trim', explode( '|||', $input ) ) );
-            } else if ( is_string( $input ) ) {
+            }
+            if ( is_string( $input ) ) {
                 return [ sanitize_text_field( $input ) ];
             }
             // fallback
             return [];
         }
     ]); // bot selection
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_default_prompt' ); // default prompt for all sitemaps
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_default_prompt', [ 'sanitize_callback' => 'sanitize_textarea_field' ] ); // default prompt for all sitemaps
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_prompts', [
         'sanitize_callback' => function($input) {
             if ( is_array( $input ) ) {
@@ -170,11 +188,11 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // checkboxes for the custom prompts
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_sitemap_index' );
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_sitemap_index', [ 'sanitize_callback' => 'sanitize_text_field' ] );
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
-                return array_map( 'sanitize_text_field', $input );
+                return array_map( 'esc_url_raw', $input );
             }
             // fallback
             return [];
@@ -186,10 +204,10 @@ add_action( 'admin_init', function() {
             return llm_toolkit_encrypt( $input );
         }
     ]); // openai api key
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model' ); // ai model
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens' ); // max tokens
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_enable_site_user_credentials' ); // enable/disable website user credentials for htaccess protections
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_user' ); // website username for htaccess protections
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_model', [ 'sanitize_callback' => 'sanitize_text_field' ] ); // ai model
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_ai_max_tokens', [ 'sanitize_callback' => 'absint' ] ); // max tokens
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_enable_site_user_credentials', [ 'sanitize_callback' => 'absint' ] ); // enable/disable website user credentials for htaccess protections
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_user', [ 'sanitize_callback' => 'sanitize_text_field' ] ); // website username for htaccess protections
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_site_pass', [
         'sanitize_callback' => function( $input ) {
             // if user credentials turned off empty password
@@ -207,6 +225,11 @@ add_action( 'admin_init', function() {
         }
     ]); // website password for htaccess protections
 });
+
+// syncs bot detection code with admin settings when saved
+add_action( 'update_option_llm_toolkit_enabled', function( $old, $new ) {
+    llm_toolkit_sync_detector( (bool) $new );
+}, 10, 2);
 
 function llm_toolkit_page() {
 
@@ -236,13 +259,6 @@ function llm_toolkit_page() {
     $site_user          = get_option( 'llm_toolkit_site_user', '' );
     $site_pass          = get_option( 'llm_toolkit_site_pass', '' );
     $placeholder        = ! empty( $site_pass ) ? "(Password set)" : "Enter a password";
-
-    // load configs
-    require_once __DIR__ . '/config/config-selected-bots.php';
-
-    // syncs bot detection code with admin settings when saved
-    update_option( 'llm_toolkit_enabled', $enabled ); // save in wp_options
-    llm_toolkit_sync_detector( (bool) $enabled ); // set llm_toolkit_enabled to true/false and tells the method what to do
     ?>
 
     <div class="wrap">
@@ -522,6 +538,12 @@ require_once __DIR__ . '/includes/helpers/get-available-sitemaps.php';
  *   llm html generation methods
  */
 require_once __DIR__ . '/includes/html-generation/html-generation.php';
+
+// get sitemaps
+require_once __DIR__ . '/includes/helpers/get-available-sitemaps.php';
+
+// load config files
+require_once __DIR__ . '/config/config-selected-bots.php';
 
 
 

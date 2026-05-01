@@ -3,6 +3,9 @@ require_once __DIR__ . '/html-generation-helpers.php';
 
 // method to generate a llm optimized html file through OpenAI
 function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
+    // extend php execution time for large API calls (no effect if PHP is in safe mode)
+    @set_time_limit( 360 );
+
     $site_user = get_option( 'llm_toolkit_site_user' );
 
     // fetch the url and check for errors
@@ -31,7 +34,10 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
 
     // load the html in a DOM structure
     $dom = new DOMDocument();
+    $libxml_previous = libxml_use_internal_errors( true );
     @$dom->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+    libxml_clear_errors();
+    libxml_use_internal_errors( $libxml_previous );
 
     // --- extract page context from <head> before stripping ---
 
@@ -196,7 +202,11 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
                 while ( $sibling ) {
                     if ( $sibling->nodeName === 'noscript' ) {
                         $noscript_dom = new DOMDocument();
+                        $noscript_prev = libxml_use_internal_errors( true );
                         @$noscript_dom->loadHTML( '<body>' . $sibling->textContent . '</body>' );
+                        libxml_clear_errors();
+                        libxml_use_internal_errors( $noscript_prev );
+
                         $noscript_imgs = $noscript_dom->getElementsByTagName( 'img' );
                         if ( $noscript_imgs->length > 0 ) {
                             $real_src = $noscript_imgs->item( 0 )->getAttribute( 'src' );
@@ -293,7 +303,7 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
         $html_truncated = true;
     }
 
-    // --- build prompt context block ---
+    // build prompt context block
     $context_lines   = [];
     $context_lines[] = 'PAGE URL: ' . $url;
     if ( $html_truncated ) $context_lines[] = 'NOTE: HTML was truncated due to page size. Focus on the content that is present.';
@@ -323,9 +333,6 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
     $active_prompt = ! empty( $custom_prompt ) ? $custom_prompt : $default_prompt;
     $prompt = $active_prompt . "\n\n" . $page_context_block . "\n\nHTML:\n" . $cleaned_html;
 
-    // extend php execution time for large API calls (no effect if PHP is in safe mode)
-    @set_time_limit( 360 );
-
     // call the openai api
     $result = llm_toolkit_openai_call( $prompt );
     if ( $result === false ) {
@@ -339,7 +346,7 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
     // check if openai returned content
     if ( ! empty( $optimized_body ) ) {
 
-        // --- build <head> from extracted metadata (reliable, no AI guesswork) ---
+        // build <head> from extracted metadata
         $head  = "<!DOCTYPE html>\n";
         $head .= '<html lang="' . esc_attr( $page_locale ?: 'nl' ) . '">' . "\n";
         $head .= "<head>\n";
@@ -366,7 +373,9 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
         }
 
         if ( ! empty( $existing_schema ) ) {
-            $head .= '  <script type="application/ld+json">' . "\n" . $existing_schema . "\n" . '  </script>' . "\n";
+            $head .= '  <script type="application/ld+json">' . "\n"
+                . str_replace( '</', '<\/', $existing_schema )
+                . "\n" . '  </script>' . "\n";
         }
 
         $head .= "</head>\n";
@@ -385,6 +394,11 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
             mkdir( dirname( $file_path ), 0755, true );
         }
 
+        if ( file_put_contents( $file_path, $optimized_html ) === false) {
+            llm_toolkit_add_status_message( 'error', 'Generate HTML: Failed to write file: ' . $file_path );
+            return false;
+        }
+
         file_put_contents( $file_path, $optimized_html );
         return true;
     }
@@ -395,18 +409,27 @@ function generate_llm_html( $url, $file_path, $sitemap_url = null ) {
 
 // generate single llm html with admin toolbar button
 function llm_toolkit_generate_single_html( $url ) {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized', 403 );
+    }
+    check_ajax_referer( 'llm_toolkit_generate_single_html', 'nonce' );
+
     if ( empty( $_POST['url'] ) ) {
         llm_toolkit_add_status_message( 'error', 'Error generate single: No URL received' );
         wp_send_json_error( 'No URL received' ); // display error alert in generate single js
         return;
     }
 
+    $url_host = wp_parse_url( $url, PHP_URL_HOST );
+    $site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+    if ( $url_host !== $site_host ) {
+        wp_send_json_error( 'URL must be on the same domain as the site.' );
+    }
+
     $url = esc_url_raw( $_POST[ 'url' ] );
     $path = wp_parse_url( $url, PHP_URL_PATH );
 
-    $file_slug = trim( $path, '/' );
-    $file_slug = $file_slug ?: 'index';
-
+    $file_slug = trim( $path, '/' ) ?: 'index';
     $file_path = WP_CONTENT_DIR . '/llms/' . $file_slug . '.html';
 
     $selected_sitemaps = get_option( 'llm_toolkit_selected_sitemaps', [] );
@@ -419,6 +442,10 @@ function llm_toolkit_generate_single_html( $url ) {
                 $sitemap_url = $sitemap;
                 break;
             }
+        }
+
+        if ( $sitemap_url === '' ) {
+            llm_toolkit_add_status_message( 'error', "Error generate single: URL not found in any selected sitemap." );
         }
     }
 

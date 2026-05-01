@@ -92,7 +92,7 @@ function llm_toolkit_register_sitemap_failure() {
     if ( $failures >= 3 ) {
         // cooldown for 30 mins after first trip, capped at 2 hours
         $cooldown = min( 30 * 60 * ( $failures - 2 ), 2 * HOUR_IN_SECONDS );
-        set_transient( 'llm_toolkit_sitemap_failures_cooldown', true, $cooldown );
+        set_transient( 'llm_toolkit_sitemap_cooldown', true, $cooldown );
 
         llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch warning: Too many failures. Cooldown set for ' . gmdate( 'H:i:s', $cooldown ) . ' after ' . $failures . 'failures.' );
     }

@@ -59,6 +59,9 @@ function llm_toolkit_sync_detector( $should_inject ) {
         fwrite( $fp, $content ); // write the new content with detector
         fflush( $fp ); // force writing of all buffered output to the file
         flock( $fp, LOCK_UN ); // unlock file
+        fclose( $fp ); // close file
+    } else if ( $fp ) {
+        // if file could not be opened, remove the lock
+        fclose( $fp );
     }
-    fclose( $fp ); // close file
 }

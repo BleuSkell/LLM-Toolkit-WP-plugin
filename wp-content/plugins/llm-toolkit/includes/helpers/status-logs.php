@@ -30,6 +30,10 @@ function llm_toolkit_get_file_logs( $limit = 100 ) {
 
 // ajax callback for live log display
 add_action( 'wp_ajax_llm_toolkit_get_status', function() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized', 403 );
+    }
+
     $logs = llm_toolkit_get_file_logs( 100 );
     wp_send_json( $logs );
 });
@@ -62,11 +66,33 @@ add_action( 'admin_post_llm_toolkit_clear_status', function() {
 });
 
 // live generated files count
-add_action('wp_ajax_llm_toolkit_get_summary', 'llm_toolkit_get_summary');
+add_action( 'wp_ajax_llm_toolkit_get_summary', 'llm_toolkit_get_summary' );
 function llm_toolkit_get_summary() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized', 403 );
+    }
+
     // get selected sitemaps
     $selected_sitemaps = get_option( 'llm_toolkit_selected_sitemaps', [] );
     $results = [];
+
+    // build generated file lookup once, relative path => true
+    $llms_dir       = WP_CONTENT_DIR . '/llms/';
+    $existing_files = [];
+    if ( is_dir( $llms_dir ) ) {
+        $rii = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator( $llms_dir, RecursiveDirectoryIterator::SKIP_DOTS )
+        );
+        $prefix_len = strlen( $llms_dir );
+        foreach ( $rii as $file ) {
+            if ( $file->isFile() && strtolower( $file->getExtension() === 'html' )) {
+                $rel = ltrim( substr( $file->getPathname(), $prefix_len ), '/\\' );
+                // normalise windows seperators to forward slashes
+                $rel = str_replace( '\\', '/', $rel );
+                $existing_files[ $rel ] = true;
+            }
+        }
+    }
 
     foreach( $selected_sitemaps as $sitemap ) {
         // return only sitemap name
@@ -74,39 +100,16 @@ function llm_toolkit_get_summary() {
         $sitemap_name   = preg_replace( $pattern, '', $sitemap );
 
         // read and count total urls in sitemap
-        $page_urls  = read_sitemap( $sitemap );
-        $total_urls = count( $page_urls );
-
-        $llms_dir           = WP_CONTENT_DIR . '/llms/';
+        $page_urls          = read_sitemap( $sitemap );
+        $total_urls         = count( $page_urls );
         $generated_files    = 0;
 
-        if ( is_dir( $llms_dir ) ) {
-            // fetch all files in llms_dir recursively (as if it's 1 list)
-            $rii = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator( $llms_dir, RecursiveDirectoryIterator::SKIP_DOTS )
-            );
+        foreach ( $page_urls as $url ) {
+            $path = trim( (string) wp_parse_url( $url, PHP_URL_PATH ), '/' );
+            $path = $path ?: 'index';
 
-            $llm_files = [];
-            foreach ( $rii as $file ) {
-                if ( $file->isFile() ) {
-                    // save filenames from recursive fetch in array
-                    $llm_files[] = $file->getFilename();
-                }
-            }
-
-            foreach ( $page_urls as $url ) {
-                // get basename from url path
-                $slug = basename( parse_url( $url, PHP_URL_PATH ) );
-
-                // loop through all generated files
-                foreach( $llm_files as $file ) {
-                    // check if file contains slug so generated_files matches the actual generated files per sitemap
-                    if ( strpos( $file, $slug ) !== false ) {
-                        // matched? count +1
-                        $generated_files++;
-                        break;
-                    }
-                }
+            if ( isset( $existing_files[ $path . '.html' ] ) ) {
+                $generated_files++;
             }
         }
 
