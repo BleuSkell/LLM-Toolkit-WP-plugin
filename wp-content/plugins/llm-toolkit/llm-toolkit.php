@@ -316,8 +316,8 @@ function llm_toolkit_page() {
                                 </label>
                             <?php endforeach; ?>
                         <?php else : ?>
-                            <p>-- No sitemap_index.xml found or child sitemaps of sitemap_index.xml detected --</p>
-                            <?php llm_toolkit_add_status_message( 'error', 'No sitemap_index.xml found or child sitemaps of sitemap_index.xml detected' ); ?>
+                            <p>-- No sitemap index xml found or child sitemaps of <?php echo esc_attr( $sitemap_index ) ?> detected --</p>
+                            <?php llm_toolkit_add_status_message( 'error', 'No sitemap index xml found or child sitemaps of ' . $sitemap_index . ' detected' ); ?>
                         <?php endif; ?>
                         <p class="description">This includes the selected sitemaps into the cron.</p>
                     </div>
