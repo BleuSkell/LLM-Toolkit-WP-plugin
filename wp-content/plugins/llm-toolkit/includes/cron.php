@@ -42,13 +42,15 @@ function llm_generate_batch_callback() {
         return; // cron disabled, skip generation logic
     }
 
+    // check for sitemap cooldown
     if ( get_transient( 'llm_toolkit_sitemap_cooldown' ) ) {
-        llm_toolkit_add_status_message( 'error', 'LLM Toolkit cron: cron skipped, sitemap cooldown active.' );
+        llm_toolkit_add_status_message( 'error', 'Cron error: Cron skipped, sitemap cooldown active.' );
+        return;
     }
 
     // check for batch lock
     if ( get_transient( 'llm_generate_batch_lock' ) ) {
-        llm_toolkit_add_status_message( 'error', 'LLM Toolkit: Cron skipped because another batch was already running' );
+        llm_toolkit_add_status_message( 'cron', 'Cron notice: Cron skipped because another batch was already running' );
         return;
     }
     set_transient( 'llm_generate_batch_lock', true, 460 ); // lock for 5 minutes
@@ -70,16 +72,38 @@ function llm_generate_batch_callback() {
         // if no sitemaps have been selected stop and return a log
         if ( empty( $selected_sitemaps ) ) {
             llm_toolkit_add_status_message( 'error', 'Cron error: No sitemaps defined' );
+            delete_transient( 'llm_generate_batch_lock' );
             return;
         }
 
         $url_to_sitemap = [];
+        $had_failure = false;
+
         foreach ( $selected_sitemaps as $sitemap_url ) {
             $sitemap_urls = read_sitemap( $sitemap_url );
+
+            if ( empty( $sitemap_urls ) ) {
+                // read_sitemap already logged the error, only remember it failed
+                $had_failure = true;
+                continue;
+            }
+
             foreach ( $sitemap_urls as $url ) {
                 $urls[] = $url;
                 $url_to_sitemap[ $url ] = $sitemap_url;
             }
+        }
+
+        // if no urls were found, stop and return a log
+        if ( empty( $urls ) ) {
+            llm_toolkit_add_status_message( 'error', 'Cron error: No sitemap URLs could be loaded this run.' );
+            delete_transient( 'llm_generate_batch_lock' );
+            return;
+        }
+
+        // log if some sitemaps failed, but continue with the rest
+        if ( $had_failure ) {
+            llm_toolkit_add_status_message( 'cron', 'Cron warning: One or more sitemaps failed to load, cron continuing with remaining sitemaps.' );
         }
 
         $remaining_pages = [];
@@ -101,10 +125,11 @@ function llm_generate_batch_callback() {
         // if everything exists, stop
         if ( empty( $remaining_pages ) ) {
             delete_transient( 'llm_remaining_pages' );
+            delete_transient( 'llm_generate_batch_lock' );
             return;
         }
 
-        llm_toolkit_add_status_message( 'cron', 'New batch queue started' );
+        llm_toolkit_add_status_message( 'cron', 'Cron success: New batch queue started' );
     }
 
     // get first 5 pages out of the queue in a batch
@@ -125,16 +150,16 @@ function llm_generate_batch_callback() {
             $success = generate_llm_html( $url, $file_path, $sitemap_url );
 
             if ( $success ) {
-                llm_toolkit_add_status_message( 'success', "Success: LLMS HTML file generated for $clean" );
+                llm_toolkit_add_status_message( 'success', "Cron success: LLMS HTML file generated for $clean" );
             } else {
 
                 // delete the empty file if needed
                 if ( file_exists( $file_path ) && filesize( $file_path ) === 0 ) {
                     unlink( $file_path );
-                    llm_toolkit_add_status_message( 'error', "Error: Empty file: $clean" );
+                    llm_toolkit_add_status_message( 'error', "Cron error: Empty file: $clean" );
                 }
 
-                llm_toolkit_add_status_message( 'error', "Error: Failed to generate LLMS HTML for $clean" );
+                llm_toolkit_add_status_message( 'error', "Cron error: Failed to generate LLMS HTML for $clean" );
             }
         }
     }
@@ -147,7 +172,7 @@ function llm_generate_batch_callback() {
         ], 12 * HOUR_IN_SECONDS );
     } else {
         delete_transient( 'llm_remaining_pages' );
-        llm_toolkit_add_status_message( 'cron', 'Success: Batch processing complete' );
+        llm_toolkit_add_status_message( 'cron', 'Cron success: Batch processing complete' );
     }
 
     // remove lock

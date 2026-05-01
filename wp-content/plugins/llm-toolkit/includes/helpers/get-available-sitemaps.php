@@ -2,8 +2,7 @@
 
 function llm_toolkit_get_available_sitemaps() {
     $site_user = get_option( 'llm_toolkit_site_user' );
-    $site_pass = llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) );
-    $sitemap_index = home_url('/sitemap_index.xml');
+    $sitemap_index = home_url( '/' . get_option( 'llm_toolkit_sitemap_index' ) );
 
     $response = wp_remote_get($sitemap_index, [
         'timeout' => 30,

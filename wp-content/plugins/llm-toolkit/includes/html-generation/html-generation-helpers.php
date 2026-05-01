@@ -1,25 +1,69 @@
 <?php
 // helper method to read the sitemap (url based for the pages sitemap)
 function read_sitemap( $sitemap_url ) {
+    $cache_key = 'llm_toolkit_sitemap_' . md5( $sitemap_url );
+
+    // serve from short-lived cache so sitemap endpoint doesn't get hit too often
+    $cached = get_transient( $cache_key );
+    if ( is_array( $cached ) ) {
+        return $cached;
+    }
+
     $site_user = get_option( 'llm_toolkit_site_user' );
     $urls = [];
 
-    $response = wp_remote_get( $sitemap_url, [
-        'timeout' => 60,
-        'headers' => [
-            'Authorization' => 'Basic ' . base64_encode( $site_user . ':' . llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) ) )
+    $args = [
+        'timeout'       => 60,
+        'redirection'   => 5,
+        'user-agent'    => 'LLM-Toolkit/1.0 (+sitemap-fetch)',
+        'headers'       => [
+            'Authorization' => 'Basic ' . base64_encode( $site_user . ':' . llm_toolkit_decrypt( get_option( 'llm_toolkit_site_pass' ) ) ),
+            'Accept'        => 'application/xml,text/xml;q=0.9',
         ]
-    ]);
+    ];
+
+    // retry sitemap up to 3 times
+    for ( $attempt = 1; $attempt <= 3; $attempt++ ) {
+        $response = wp_remote_get( $sitemap_url, $args );
+        $code = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+
+        if ( ! is_wp_error( $response ) && $code == 200 ) {
+            break;
+        }
+
+        if ( $attempt < 3 ) {
+            sleep( 2 * $attempt ); // 2s, then 4s and so on
+        }
+    }
 
     if ( is_wp_error( $response ) ) {
-        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: ' . $response->get_error_message() );
+        llm_toolkit_register_sitemap_failure();
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: HTTP ' . $code . ' from ' . $sitemap_url . '; Message ' . $response->get_error_message() );
+        return [];
+    }
+
+    if ( $code != 200 ) {
+        llm_toolkit_register_sitemap_failure();
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: HTTP ' . $code . ' from ' . $sitemap_url );
         return [];
     }
 
     $body = wp_remote_retrieve_body( $response );
+
+    // check if the response is valid XML
+    if ( stripos( ltrim( $body ), '<?xml' ) !== 0 && stripos( ltrim( $body ), '<urlset' ) === false) {
+        llm_toolkit_register_sitemap_failure();
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: Invalid XML response from ' . $sitemap_url . '. ' . $body );
+        return [];
+    }
+
+    $previous = libxml_use_internal_errors( true );
     $xml = simplexml_load_string( $body );
+    libxml_clear_errors();
+    libxml_use_internal_errors( $previous );
 
     if ( ! $xml ) {
+        llm_toolkit_register_sitemap_failure();
         llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch failed: Unable to parse XML response from ' . $sitemap_url . '. ' . $body );
         return [];
     }
@@ -30,7 +74,30 @@ function read_sitemap( $sitemap_url ) {
         }
     }
 
+    // reset failure counter and set cache for 30 mins
+    delete_transient( 'llm_toolkit_sitemap_failures' );
+    set_transient( $cache_key, $urls, 30000 );
+
     return $urls;
+}
+
+// helper method to register a sitemap fetch failure and set a cooldown
+function llm_toolkit_register_sitemap_failure() {
+    $failures = (int) get_transient( 'llm_toolkit_sitemap_failures' );
+    $failures++;
+
+    // keep failure counter for 1 hour
+    set_transient( 'llm_toolkit_sitemap_failures', $failures, 60 * 60 );
+
+    if ( $failures >= 3 ) {
+        // cooldown for 30 mins after first trip, capped at 2 hours
+        $cooldown = min( 30 * 60 * ( $failures - 2 ), 2 * 60 * 60 );
+        set_transient( 'llm_toolkit_sitemap_failures_cooldown', true, $cooldown );
+
+        llm_toolkit_add_status_message( 'error', 'Generation helper sitemap fetch warning: Too many failures. Cooldown set for ' . gmdate( 'H:i:s', $cooldown ) . ' after ' . $failures . 'failures.' );
+    }
+
+    return $failures;
 }
 
 // helper method to call the OpenAI API

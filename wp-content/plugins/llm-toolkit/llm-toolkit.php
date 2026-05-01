@@ -170,6 +170,7 @@ add_action( 'admin_init', function() {
             return [];
         }
     ]); // checkboxes for the custom prompts
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_sitemap_index' );
     register_setting( 'llm_toolkit_settings', 'llm_toolkit_selected_sitemaps', [
         'sanitize_callback' => function( $input ) {
             if ( is_array( $input ) ) {
@@ -226,6 +227,7 @@ function llm_toolkit_page() {
     $max_tokens         = get_option( 'llm_toolkit_ai_max_tokens' );
 
     // get sitemaps
+    $sitemap_index      = get_option( 'llm_toolkit_sitemap_index' );
     $available_sitemaps = llm_toolkit_get_available_sitemaps();
     $selected_sitemaps  = $sitemaps;
 
@@ -294,6 +296,12 @@ function llm_toolkit_page() {
 
                         <p class="description">Maximum amount of tokens</p>
                         <input type="number" name="llm_toolkit_ai_max_tokens" id="llm_toolkit_ai_max_tokens" placeholder="Max tokens" value="<?php echo esc_attr( $max_tokens ); ?>" required />
+                    </div>
+
+                    <div class="llm-field">
+                        <label class="llm-label">Set sitemap index</label>
+
+                        <input type="text" placeholder="sitemap_index.xml" name="llm_toolkit_sitemap_index" value="<?php echo esc_attr( $sitemap_index ); ?>" />
                     </div>
 
                     <div class="llm-field">
