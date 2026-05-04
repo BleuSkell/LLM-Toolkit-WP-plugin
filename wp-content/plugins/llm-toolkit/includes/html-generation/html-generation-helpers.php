@@ -108,6 +108,11 @@ function llm_toolkit_openai_call( $prompt ) {
     $api_model  = get_option( 'llm_toolkit_ai_model' );
     $max_tokens = get_option( 'llm_toolkit_ai_max_tokens' );
 
+    if ( empty( $api_key ) ) {
+        llm_toolkit_add_status_message( 'error', 'OpenAI call: API key not set' );
+        return false;
+    }
+
     require_once WP_PLUGIN_DIR . '/llm-toolkit/config/api-models.php';
 
     switch ( $api_model ) {

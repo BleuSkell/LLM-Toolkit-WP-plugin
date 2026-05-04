@@ -420,13 +420,14 @@ function llm_toolkit_generate_single_html( $url ) {
         return;
     }
 
+    $url = esc_url_raw( $_POST[ 'url' ] );
+
     $url_host = wp_parse_url( $url, PHP_URL_HOST );
     $site_host = wp_parse_url( home_url(), PHP_URL_HOST );
     if ( $url_host !== $site_host ) {
         wp_send_json_error( 'URL must be on the same domain as the site.' );
     }
 
-    $url = esc_url_raw( $_POST[ 'url' ] );
     $path = wp_parse_url( $url, PHP_URL_PATH );
 
     $file_slug = trim( $path, '/' ) ?: 'index';

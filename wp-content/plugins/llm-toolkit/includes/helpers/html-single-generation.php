@@ -9,6 +9,9 @@ function llm_toolkit_generate_single_js() {
     // get ajax handler
     $ajax_handler_url = admin_url( 'admin-ajax.php' );
 
+    // generte nonce
+    $ajax_nonce = wp_create_nonce( 'llm_toolkit_generate_single_html' );
+
     ?>
 
     <script>
@@ -38,6 +41,7 @@ function llm_toolkit_generate_single_js() {
             }
 
             const ajax_handler_url = '<?php echo esc_url( $ajax_handler_url ); ?>';
+            const ajaxNonce = '<?php echo esc_attr( $ajax_nonce ); ?>';
 
             showLoader();
 
@@ -46,6 +50,7 @@ function llm_toolkit_generate_single_js() {
                 {
                     action: 'llm_toolkit_generate_single_html', // call function to generate html
                     url: currentPageUrl,
+                    nonce: ajaxNonce,
                 },
                 function( response ) {
                     hideLoader();

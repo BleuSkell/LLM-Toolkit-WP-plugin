@@ -31,6 +31,7 @@ function llm_generate_batch_callback() {
         return;
     }
     set_transient( 'llm_generate_batch_lock', true, 460 ); // lock for 5 minutes
+    llm_toolkit_add_status_message( 'cron', 'Cron success: Cron started, batch lock set' );
 
     // get remaining pages queue from transient
     $data = get_transient( 'llm_remaining_pages' );
@@ -104,15 +105,17 @@ function llm_generate_batch_callback() {
         if ( empty( $remaining_pages ) ) {
             delete_transient( 'llm_remaining_pages' );
             delete_transient( 'llm_generate_batch_lock' );
+            llm_toolkit_add_status_message( 'cron', 'Cron notice: All pages have LLM optimized HTML' );
             return;
         }
 
         llm_toolkit_add_status_message( 'cron', 'Cron success: New batch queue started' );
     }
 
-    // get first 5 pages out of the queue in a batch
+    // get first 3 pages out of the queue in a batch
     $batch = array_slice( $remaining_pages, 0, 3 );
     $remaining_pages = array_slice( $remaining_pages, 3 );
+    llm_toolkit_add_status_message( 'cron', 'Cron notice: Batch processing started: ' . count( $batch ) . ' pages in this batch' );
 
     // process the batch
     foreach ( $batch as $url ) {
@@ -148,6 +151,7 @@ function llm_generate_batch_callback() {
             'queue'     => $remaining_pages,
             'mapping'   => $url_to_sitemap
         ], 12 * HOUR_IN_SECONDS );
+        llm_toolkit_add_status_message( 'cron', 'Cron success: Batch processing resumed: ' . count( $remaining_pages ) . ' pages remaining' );
     } else {
         delete_transient( 'llm_remaining_pages' );
         llm_toolkit_add_status_message( 'cron', 'Cron success: Batch processing complete' );

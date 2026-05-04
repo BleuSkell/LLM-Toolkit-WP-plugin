@@ -2,7 +2,7 @@
 /**
  * Plugin Name: llm-toolkit
  * Description: Show/generate optimalized html for LLMS by checking the user-agent of the site visitor.
- * Version: 1.3
+ * Version: 1.4
  * Author: Kyano
  */
 
@@ -36,11 +36,14 @@ require_once __DIR__ . '/includes/detection/bot-detection.php';
 
 // add bot detection on plugin activation
 register_activation_hook( __FILE__, function() {
+    llm_toolkit_add_status_message( 'success', 'LLM Toolkit enabled.' );
+
     llm_toolkit_sync_detector( true ); // inject detector if plugin enabled
     llm_toolkit_write_selected_bots_file();
+    llm_toolkit_add_status_message( 'success', 'Injected bot detection code.' );
 
     // plan cron when admin toggle is enabled
-    if ( get_option( 'llm_toolkit_cron_enabled', '0' ) === '1' ) {
+    if ( get_option( 'llm_toolkit_cron_enabled', false ) == true ) {
         if ( ! wp_next_scheduled( 'llm_generate_batch' ) ) {
             wp_schedule_event( time() + 60, 'every_5_minutes', 'llm_generate_batch' );
         }
@@ -51,7 +54,10 @@ register_activation_hook( __FILE__, function() {
 
 // remove bot detection on plugin deactivation
 register_deactivation_hook( __FILE__, function() {
+    llm_toolkit_add_status_message( 'success', 'LLM Toolkit disabled' );
+
     llm_toolkit_sync_detector( false ); // remove detector if plugin disabled
+    llm_toolkit_add_status_message( 'success', 'Removed bot detection code.' );
 
     // unschedule cron
     $timestamp = wp_next_scheduled( 'llm_generate_batch' );

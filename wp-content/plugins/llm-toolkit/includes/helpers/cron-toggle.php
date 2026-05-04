@@ -3,9 +3,8 @@
 // toggle cron job in admin menu
 add_action( 'update_option_llm_toolkit_cron_enabled', 'llm_toolkit_cron_toggle', 10, 2 );
 function llm_toolkit_cron_toggle( $old, $new ) {
-
     // cron enable/disable from admin menu
-    if ( $new == '1' ) {
+    if ( $new == '1' && get_option( 'llm_toolkit_enabled' ) === '1' ) {
         if ( ! wp_next_scheduled( 'llm_generate_batch' ) ) {
             wp_schedule_event( time() + 60, 'every_5_minutes', 'llm_generate_batch' );
             error_log( 'LLM Toolkit: Cron enabled via admin toggle' );

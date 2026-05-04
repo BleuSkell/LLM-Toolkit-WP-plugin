@@ -33,6 +33,9 @@ if ( ! defined( 'MY_PLUGIN_LOADED' ) ) {
         $selected_bots_file = $root_dir . '/wp-content/llm-toolkit-selected-bots.json'; // location configured in llm-toolkit config
         if ( file_exists( $selected_bots_file ) ) {
             $selected_bots = json_decode( file_get_contents( $selected_bots_file ), true );
+        } else {
+            $selected_bots = [];
+            error_log( 'Selected bots file not found: ' . $selected_bots_file );
         }
 
         // turn the bot names/keywords into regex
