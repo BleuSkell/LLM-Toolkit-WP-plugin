@@ -59,12 +59,19 @@ document.addEventListener("DOMContentLoaded", function () {
     setInterval(fetchStatus, 30000);
     fetchStatus();
 
+    let lastChecksum = null;
+
     function fetchSummary() {
         fetch(ajaxurl + '?action=llm_toolkit_get_summary')
             .then(response => response.json())
-            .then(data => {
-                let html = '';
+            .then(({ success, data: payload }) => {
+                if ( !success ) return;
+                const { checksum, data } = payload;
 
+                if (checksum === lastChecksum) return;
+                lastChecksum = checksum;
+
+                let html = '';
                 data.forEach(item => {
                     html += `Sitemap: <strong>${item.sitemap_name}</strong> | generated files: <strong>${item.generated_files}</strong> | total urls: <strong>${item.total_urls}</strong><br/>`;
                 });
@@ -73,6 +80,5 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(err => console.log('LLM summary fetching error: ', err));
     }
-
     fetchSummary();
 });

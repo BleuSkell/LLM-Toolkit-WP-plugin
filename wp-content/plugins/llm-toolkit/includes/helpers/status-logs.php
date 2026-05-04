@@ -65,7 +65,7 @@ add_action( 'admin_post_llm_toolkit_clear_status', function() {
     exit;
 });
 
-// live generated files count
+// generated files count
 add_action( 'wp_ajax_llm_toolkit_get_summary', 'llm_toolkit_get_summary' );
 function llm_toolkit_get_summary() {
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -120,5 +120,8 @@ function llm_toolkit_get_summary() {
         ];
     }
 
-    wp_send_json( $results );
+    wp_send_json_success([
+        'checksum'  => md5( serialize( $results ) ),
+        'data'      => $results
+    ]);
 }
