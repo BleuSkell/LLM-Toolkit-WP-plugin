@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const list = document.getElementById("llm-bot-requests");
     const listContainer = document.getElementById("llm-bot-requests-container");
 
+    const aiCounter = document.getElementById("ai-counter");
+
     let autoScroll = true;
 
     listContainer.addEventListener("scroll", () => {
@@ -48,7 +50,14 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(ajaxurl + '?action=llm_toolkit_bot_counts')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                aiCounter.innerHTML = "";
+
+                data.forEach(count => {
+                    const p = document.createElement("p");
+
+                    p.textContent = count;
+                    aiCounter.appendChild(p);
+                })
             });
     }
 

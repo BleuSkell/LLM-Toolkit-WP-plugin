@@ -539,6 +539,12 @@ function bot_requests_page() {
                 <ul id="llm-bot-requests"></ul>
             </div>
         </div>
+
+        <div class="llm-admin-card">
+            <h3>AI Counter</h3>
+
+            <div id="ai-counter"></div>
+        </div>
     </div>
 
     <?php

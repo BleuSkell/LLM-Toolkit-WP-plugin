@@ -3,8 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 define( 'ACCESSLOG', '/data/sites/web/stagingbegenl/logs/access-com-linweb116.log' );
 
 require __DIR__ . '/counter-bot-signatures.php';
-require __DIR__ . '/counter-db-installer.php';
-require '../helpers/write-to-db.php';
+require WP_CONTENT_DIR . '/plugins/llm-toolkit/includes/helpers/write-to-db.php';
 
 // define cron bookmark
 add_action( 'init', function() {
