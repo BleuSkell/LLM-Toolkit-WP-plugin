@@ -44,6 +44,15 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    function fetchAiCount() {
+        fetch(ajaxurl + '?action=llm_toolkit_bot_counts')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
+    }
+
     setInterval(fetchStatus, 10000);
     fetchStatus();
+    fetchAiCount();
 });

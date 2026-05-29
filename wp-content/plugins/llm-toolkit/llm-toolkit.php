@@ -30,6 +30,14 @@ if ( ! empty( $_SERVER['HTTP_X_LLM_FETCH'] ) ) {
 
 
 /*
+ *  AI counter
+ */
+require_once __DIR__ . '/includes/ai-counter/counter-db-installer.php';
+require_once __DIR__ . '/includes/ai-counter/counter-cron.php';
+
+
+
+/*
  *  bot detection
  */
 require_once __DIR__ . '/includes/detection/bot-detection.php';
@@ -50,6 +58,14 @@ register_activation_hook( __FILE__, function() {
 
         llm_toolkit_add_status_message( 'cron', 'Cron started on ' . current_time( 'Y-m-d H:i:s' ) . ' generating LLM HTML files' );
     }
+
+    // install ai counter database tables
+    db_installer_callback();
+
+    // register cron to count bots
+    if ( ! wp_next_scheduled( 'llm_count_bots' ) ) {
+        wp_schedule_event( time() + 60, 'hourly', 'llm_count_bots' );
+    }
 });
 
 // remove bot detection on plugin deactivation
@@ -63,7 +79,14 @@ register_deactivation_hook( __FILE__, function() {
     $timestamp = wp_next_scheduled( 'llm_generate_batch' );
     if ( $timestamp ) {
         wp_unschedule_event( $timestamp, 'llm_generate_batch' );
-        llm_toolkit_add_status_message( 'cron', 'Cron stopped on ' . current_time( 'Y-m-d H:i:s' ) . ' completing last batch before stopping' );
+        llm_toolkit_add_status_message( 'cron', 'Cron stopped on ' . current_time( 'd-m-Y H:i:s' ) . ' completing last batch before stopping' );
+    }
+
+    // unschedule cron to count bots
+    $timestamp_count = wp_next_scheduled( 'llm_count_bots' );
+    if ( $timestamp_count ) {
+        wp_unschedule_event( $timestamp_count, 'llm_count_bots' );
+        llm_toolkit_add_status_message( 'cron', 'AI counter cron stopped on ' . current_time( 'd-m-Y H:i:s' ) );
     }
 });
 
@@ -531,6 +554,8 @@ require_once __DIR__ . '/includes/helpers/encryption.php';
 require_once __DIR__ . '/includes/helpers/status-logs.php';
 
 require_once __DIR__ . '/includes/helpers/bot-requests.php';
+
+require_once __DIR__ . '/includes/ai-counter/counter-ajax.php';
 
 require_once __DIR__ . '/includes/helpers/cron-toggle.php';
 
