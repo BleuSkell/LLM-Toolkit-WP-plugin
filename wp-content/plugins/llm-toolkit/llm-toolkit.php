@@ -527,10 +527,23 @@ function status_logs_page() {
 }
 
 function bot_requests_page() {
+    global $wpdb;
+    $table = $wpdb->prefix . "ai_counts";
+
+    $results = $wpdb->get_results( "SELECT * FROM $table" );
+
+    var_dump($results);
+
     ?>
 
     <div class="wrap">
         <h1>LLM Toolkit – Bot Requests</h1>
+
+        <div class="llm-admin-card">
+            <h3>AI Counter</h3>
+
+            <div id="ai-counter"></div>
+        </div>
 
         <div class="llm-admin-card">
             <h3>Bot Requests</h3>
@@ -538,12 +551,6 @@ function bot_requests_page() {
             <div class="llm-requests-box" id="llm-bot-requests-container">
                 <ul id="llm-bot-requests"></ul>
             </div>
-        </div>
-
-        <div class="llm-admin-card">
-            <h3>AI Counter</h3>
-
-            <div id="ai-counter"></div>
         </div>
     </div>
 

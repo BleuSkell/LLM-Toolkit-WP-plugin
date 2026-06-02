@@ -50,14 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(ajaxurl + '?action=llm_toolkit_bot_counts')
             .then(response => response.json())
             .then(data => {
-                aiCounter.innerHTML = "";
-
-                data.forEach(count => {
-                    const p = document.createElement("p");
-
-                    p.textContent = count;
+                for (const key in data) {
+                    const p = document.createElement('p');
+                    p.textContent = `${key}: ${data[key]}`;
                     aiCounter.appendChild(p);
-                })
+                }
             });
     }
 

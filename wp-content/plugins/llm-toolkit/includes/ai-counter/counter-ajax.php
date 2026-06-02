@@ -25,8 +25,10 @@ function llm_toolkit_counter_ajax() {
         }
     }
 
-    $counts['last_updated'] = current_time('Y-m-d H:i:s');
-
+    if ( ! $counts || ! is_array( $counts) ) {
+        llm_toolkit_add_status_message( 'error', 'AI counter: Unable to parse data from the database' );
+        return null;
+    }
     return $counts;
 }
 

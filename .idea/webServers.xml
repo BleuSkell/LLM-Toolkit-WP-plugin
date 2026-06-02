@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="a56e2da0-b652-46bb-9d4c-55e0883bb3f6" name="bege" url="http:s//staging.bege.nl">
-        <fileTransfer rootFolder="/data/sites/web/stagingbegenl" accessType="SFTP" host="ssh017.hosting-cluster.nl" port="22" sshConfigId="e314321b-9180-44be-99a6-93d8a089d6f0" sshConfig="stagingbegenl@ssh017.hosting-cluster.nl:22 agent" authAgent="true">
+        <fileTransfer rootFolder="/data/sites/web/stagingbegenl/www" accessType="SFTP" host="ssh017.hosting-cluster.nl" port="22" sshConfigId="e314321b-9180-44be-99a6-93d8a089d6f0" sshConfig="stagingbegenl@ssh017.hosting-cluster.nl:22 agent" authAgent="true">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

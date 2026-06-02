@@ -13,11 +13,11 @@ function llm_toolkit_get_bot_requests( $limit ) {
     foreach ( $lines as $line ) {
         if ( preg_match( '/\[(.*?)\]\s+(.*?)\s+made a request to\s+(.*?)\.\s+At IP:\s+(.*)/', $line, $matches ) ) {
             $bots[] = [
-                'time' => $matches[1],
-                'user_agent' => $matches[2],
-                'request' => $matches[3],
-                'ip' => $matches[4],
-                'raw_line' => $matches[5],
+                'time'          => $matches[1],
+                'user_agent'    => $matches[2],
+                'request'       => $matches[3],
+                'ip'            => $matches[4],
+                'raw_line'      => $matches[5],
             ];
         }
     }
