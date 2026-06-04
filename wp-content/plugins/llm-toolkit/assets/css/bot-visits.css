@@ -1,0 +1,50 @@
+.llm-flex {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: flex-start;
+}
+
+.llm-card {
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.llm-card .title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.llm-field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.llm-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.llm-visits-table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+.llm-visits-table td, .llm-visits-table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+.llm-visits-table tr:nth-child(even){background-color: #f2f2f2;}
+.llm-visits-table tr:hover {background-color: #ddd;}
+.llm-visits-table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #2271b1;
+    color: white;
+}
