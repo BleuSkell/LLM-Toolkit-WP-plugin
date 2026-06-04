@@ -530,44 +530,26 @@ function status_logs_page() {
 }
 
 function bot_requests_page() {
-    global $wpdb;
-    $table = $wpdb->prefix . "ai_counts";
-
-    $daily = $wpdb->get_results(
-        $wpdb->prepare("
-            SELECT UA, referral, category, hits, timestamp AS day
-            FROM $table 
-            WHERE timestamp >= %s
-            ORDER BY timestamp DESC",
-            date('Y-m-d', strtotime('-14 days'))
-        )
-    );
-    $monthly = $wpdb->get_results(
-        $wpdb->prepare("
-            SELECT UA, referral, category, SUM(hits) AS total_hits, DATE_FORMAT(timestamp, '%%Y-%%m') AS month 
-            FROM $table 
-            WHERE timestamp < %s 
-            GROUP BY UA, category, DATE_FORMAT(timestamp, '%%Y-%%m')
-            ORDER BY month DESC",
-            date('Y-m-d', strtotime('-14 days'))
-        )
-    );
-
-    echo "past 14 days:<br>";
-    print_r($daily);
-    echo "<br><br>";
-    echo "past months:<br>";
-    print_r($monthly);
-
     ?>
 
     <div class="wrap">
         <h1>LLM Toolkit – Bot Requests</h1>
 
         <div class="llm-admin-card">
-            <h3>AI Counter</h3>
+            <h3>Bot visits</h3>
 
-            <canvas id="llm-bot-chart" height="100"></canvas>
+            <canvas id="llm-bot-chart" height="50"></canvas>
+
+            <table
+                id="llm-bot-visits-table"
+                class="llm-visits-table"
+                style="margin-top: 10px; margin-bottom: 10px;"
+            ></table>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input type="checkbox" id="view-per-month"/>
+                <label for="view-per-month">View per month</label>
+            </div>
         </div>
 
         <div class="llm-admin-card">
