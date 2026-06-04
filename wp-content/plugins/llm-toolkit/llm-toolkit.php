@@ -119,7 +119,10 @@ function llm_toolkit_scripts_callback( $hook ) {
         wp_localize_script( 'llm-toolkit-page', 'scriptParams', $script_params );
     }
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
-    if ( $hook === 'llm-toolkit_page_bot-requests' ) wp_enqueue_script( 'llm-toolkit-bot-requests-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-requests-page.js' );
+    if ( $hook === 'llm-toolkit_page_bot-requests' ) {
+        wp_enqueue_script( 'chartjs', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true );
+        wp_enqueue_script( 'llm-toolkit-bot-requests-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-requests-page.js', ['chartjs'], null, true );
+    }
 }
 add_action( 'admin_enqueue_scripts', 'llm_toolkit_scripts_callback' );
 
@@ -530,9 +533,31 @@ function bot_requests_page() {
     global $wpdb;
     $table = $wpdb->prefix . "ai_counts";
 
-    $results = $wpdb->get_results( "SELECT * FROM $table" );
+    $daily = $wpdb->get_results(
+        $wpdb->prepare("
+            SELECT UA, referral, category, hits, timestamp AS day
+            FROM $table 
+            WHERE timestamp >= %s
+            ORDER BY timestamp DESC",
+            date('Y-m-d', strtotime('-14 days'))
+        )
+    );
+    $monthly = $wpdb->get_results(
+        $wpdb->prepare("
+            SELECT UA, referral, category, SUM(hits) AS total_hits, DATE_FORMAT(timestamp, '%%Y-%%m') AS month 
+            FROM $table 
+            WHERE timestamp < %s 
+            GROUP BY UA, category, DATE_FORMAT(timestamp, '%%Y-%%m')
+            ORDER BY month DESC",
+            date('Y-m-d', strtotime('-14 days'))
+        )
+    );
 
-    var_dump($results);
+    echo "past 14 days:<br>";
+    print_r($daily);
+    echo "<br><br>";
+    echo "past months:<br>";
+    print_r($monthly);
 
     ?>
 
@@ -542,7 +567,7 @@ function bot_requests_page() {
         <div class="llm-admin-card">
             <h3>AI Counter</h3>
 
-            <div id="ai-counter"></div>
+            <canvas id="llm-bot-chart" height="100"></canvas>
         </div>
 
         <div class="llm-admin-card">

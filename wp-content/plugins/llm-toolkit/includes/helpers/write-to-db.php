@@ -6,23 +6,20 @@ function llm_toolkit_write_to_db( array $tally ): void {
 
     foreach ( $tally as $category => $user_agents ) {
         foreach ( $user_agents as $ua => $referrals ) {
-            foreach ( $referrals as $referral => $requests ) {
-                foreach ( $requests as $request => $hits ) {
-                    $wpdb->query(
-                        $wpdb->prepare(
-                            "
+            foreach ( $referrals as $referral => $hits ) {
+                $wpdb->query(
+                    $wpdb->prepare(
+                        "
                             INSERT INTO {$table}
                             (
                                 UA,
                                 referral,
-                                page_req,
                                 category,
                                 hits,
                                 timestamp
                             )
                             VALUES
                             (
-                                %s,
                                 %s,
                                 %s,
                                 %s,
@@ -33,15 +30,13 @@ function llm_toolkit_write_to_db( array $tally ): void {
                                 hits = hits + VALUES(hits),
                                 timestamp = VALUES(timestamp)
                             ",
-                            $ua,
-                            $referral,
-                            $request,
-                            $category,
-                            $hits,
-                            $timestamp
-                        )
-                    );
-                }
+                        $ua,
+                        $referral,
+                        $category,
+                        $hits,
+                        $timestamp
+                    )
+                );
             }
         }
     }

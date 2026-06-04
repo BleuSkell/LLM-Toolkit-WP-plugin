@@ -53,14 +53,14 @@ function llm_count_bots_callback() {
 
         foreach ( ['crawler', 'answer_engine', 'trad_search_crawler'] as $category ) {
             if ( preg_match( $bot_signatures[$category], $user_agent ) ) {
-                $tally[$category][$user_agent][$referral][$request]++;
+                $tally[$category][$user_agent][$referral]++;
                 $matched = true;
                 break;
             }
         }
 
         if ( ! $matched && preg_match( $bot_signatures['ai_referral'], $referral) ) {
-            $tally['ai_referral'][$user_agent][$referral][$request]++;
+            $tally['ai_referral'][$user_agent][$referral]++;
         }
     }
 
