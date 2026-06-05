@@ -121,7 +121,7 @@ function llm_toolkit_scripts_callback( $hook ) {
     }
     if ( $hook === 'llm-toolkit_page_status-logs' ) wp_enqueue_script( 'llm-toolkit-status-logs-page', plugin_dir_url( __FILE__ ) . 'assets/js/status-logs-page.js' );
     if ( $hook === 'llm-toolkit_page_bot-requests' ) wp_enqueue_script( 'llm-toolkit-bot-requests-page', plugin_dir_url( __FILE__ ) . 'assets/js/bot-requests-page.js' );
-    if ( $hook === 'llm-toolkit_page_settings' ) {
+    if ( $hook === 'llm-toolkit_page_settings-page' ) {
         wp_enqueue_script( 'llm-toolkit-settings-page', plugin_dir_url( __FILE__ ) . 'assets/js/settings-page.js' );
         $script_params = [
                 'custom_prompts'    => get_option( 'llm_toolkit_prompts', [] ),
