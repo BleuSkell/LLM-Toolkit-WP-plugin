@@ -64,7 +64,11 @@ register_activation_hook( __FILE__, function() {
 
     // register cron to count bots
     if ( ! wp_next_scheduled( 'llm_count_bots' ) ) {
-        wp_schedule_event( time() + 60, 'hourly', 'llm_count_bots' );
+        wp_schedule_event(
+            strtotime( 'tomorrow midnight' ),
+            'daily',
+            'llm_count_bots'
+        );
     }
 });
 
@@ -283,11 +287,12 @@ function llm_toolkit_page() {
 
             <canvas id="llm-bot-chart" height="50"></canvas>
 
-            <table
-                    id="llm-bot-visits-table"
-                    class="llm-visits-table"
-                    style="margin-top: 10px; margin-bottom: 10px;"
-            ></table>
+            <div class="llm-visits-table-container">
+                <table
+                        id="llm-bot-visits-table"
+                        class="llm-visits-table"
+                ></table>
+            </div>
 
             <div style="display: flex; align-items: center; gap: 5px;">
                 <input type="checkbox" id="view-per-month"/>

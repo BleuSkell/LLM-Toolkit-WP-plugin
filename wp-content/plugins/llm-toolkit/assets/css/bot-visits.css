@@ -30,10 +30,17 @@
     margin-bottom: 6px;
 }
 
+.llm-visits-table-container {
+    overflow: auto;
+    max-height: 500px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 .llm-visits-table {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    position: relative;
 }
 .llm-visits-table td, .llm-visits-table th {
     border: 1px solid #ddd;
@@ -47,4 +54,7 @@
     text-align: left;
     background-color: #2271b1;
     color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }

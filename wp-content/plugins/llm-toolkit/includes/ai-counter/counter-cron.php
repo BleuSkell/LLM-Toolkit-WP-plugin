@@ -1,27 +1,26 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
-define ( 'ACCESSLOG', '/data/sites/web/stagingbegenl/logs/access-com-linweb116.log' );
+define ( 'ACCESS_GZIP', '/data/sites/web/stagingbegenl/logs/access.log.1.gz' );
 
 require WP_PLUGIN_DIR . '/llm-toolkit/includes/helpers/write-to-db.php';
 require WP_PLUGIN_DIR . '/llm-toolkit/includes/helpers/parse-log-line.php';
 
 add_action( 'init', function() {
-    register_setting( 'llm_toolkit_settings', 'llm_toolkit_counter_bookmark', [ 'sanitize_callback' => 'absint' ] );
+    register_setting( 'llm_toolkit_settings', 'llm_toolkit_gz_last_modified', [ 'sanitize_callback' => 'date' ] );
 });
 
 add_action( 'llm_count_bots', 'llm_count_bots_callback' );
 function llm_count_bots_callback() {
-    if ( ! defined( 'ACCESSLOG' ) ) {
-        llm_toolkit_add_status_message( 'error', 'AI Counter: Access logs file not found.' );
+    if ( ! defined( 'ACCESS_GZIP' ) ) {
+        llm_toolkit_add_status_message( 'error', 'AI Counter: gzipped access logs file not found.' );
         return;
     }
-    llm_toolkit_add_status_message( 'cron', 'AI Counter: Reading access logs.' );
 
-    $bookmark = get_option( 'llm_toolkit_counter_bookmark' );
-    if ( $bookmark > filesize( ACCESSLOG ) ) {
-        $bookmark = 0;
-        update_option( 'llm_toolkit_counter_bookmark', $bookmark );
-        llm_toolkit_add_status_message( 'cron', 'AI Counter: Bookmark reset.' );
+    $last_modified      = get_option( 'llm_toolkit_gz_last_modified', 0 );
+    $current_modified   = filemtime( ACCESS_GZIP );
+    if ( $current_modified <= $last_modified ) {
+        llm_toolkit_add_status_message( 'cron', 'AI Counter: Gzipped access logs unchanged since last run, skipping.' );
+        return;
     }
 
     $bot_signatures = [
@@ -31,13 +30,13 @@ function llm_count_bots_callback() {
         'ai_referral'           => '#chatgpt\.com|claude\.ai|perplexity\.ai|gemini\.google\.com|copilot\.microsoft\.com|grok\.com|mistral\.ai|deepseek\.com#i',
     ];
 
-    $file = fopen( ACCESSLOG, 'r' );
-    fseek( $file, $bookmark );
+    $file = gzopen( ACCESS_GZIP, 'r' );
+    llm_toolkit_add_status_message( 'cron', 'AI Counter: Reading gzipped access logs.' );
 
     $tally = [];
 
-    while ( ! feof( $file ) ) {
-        $line = fgets( $file );
+    while ( ! gzeof( $file ) ) {
+        $line = gzgets( $file );
         $parsed = llm_toolkit_parse_log_line( $line );
 
         if ( ! $parsed ) continue;
@@ -51,22 +50,24 @@ function llm_count_bots_callback() {
         $user_agent = $parsed[7];
         $matched    = false;
 
+        $log_date = date( 'Y-m-d', strtotime( $timestamp ) );
+
         foreach ( ['crawler', 'answer_engine', 'trad_search_crawler'] as $category ) {
             if ( preg_match( $bot_signatures[$category], $user_agent ) ) {
-                $tally[$category][$user_agent][$referral]++;
+                $tally[$category][$user_agent][$referral][$log_date]++;
                 $matched = true;
                 break;
             }
         }
 
         if ( ! $matched && preg_match( $bot_signatures['ai_referral'], $referral) ) {
-            $tally['ai_referral'][$user_agent][$referral]++;
+            $tally['ai_referral'][$user_agent][$referral][$log_date]++;
         }
     }
 
-    llm_toolkit_add_status_message( 'success', 'AI Counter: Read and parsed access logs.' );
-    update_option( 'llm_toolkit_counter_bookmark', ftell( $file ) );
-    fclose( $file );
+    llm_toolkit_add_status_message( 'success', 'AI Counter: Read and parsed gzipped access logs.' );
+    gzclose( $file );
+    update_option( 'llm_toolkit_gz_last_modified', $current_modified );
 
     llm_toolkit_write_to_db( $tally );
     llm_toolkit_add_status_message( 'success', 'AI Counter: Data written to database.' );

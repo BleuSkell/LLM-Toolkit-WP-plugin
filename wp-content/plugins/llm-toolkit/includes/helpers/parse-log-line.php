@@ -1,6 +1,6 @@
 <?php
 function llm_toolkit_parse_log_line( string $line ): array|false {
-    $pattern = '/^(\S+) - - \[([^\]]+)\] "([^"]*)" (\d+) (\d+) "([^"]*)" "([^"]*)"/';
+    $pattern = '/^(\S+) - - \[([^\]]+)\] "([^"]*)" (\d+) (\S+) "([^"]*)" "([^"]*)"/';
 
     $result = preg_match( $pattern, $line, $matches );
 
